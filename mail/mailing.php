@@ -1,0 +1,2 @@
+
+<?=$mailingData->body?>
