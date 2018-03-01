@@ -9,16 +9,27 @@ namespace app\models\query;
  */
 class MaterialQuery extends \yii\db\ActiveQuery
 {
+    /**
+     * @return $this
+     */
     public function active()
     {
         return $this->andWhere(['status_publisher' => 1]);
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
     public function forCategory($id)
     {
         return $this->andWhere(['category_id' => $id]);
     }
 
+    /**
+     * @param $id
+     * @return $this
+     */
     public function forConference($id)
     {
         return $this->andWhere(['conference_id' => $id]);

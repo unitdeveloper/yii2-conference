@@ -37,7 +37,7 @@ class EmailController
         try {
             $inbox = imap_open($this->inboxData['hostname'], $this->inboxData['username'], $this->inboxData['password']) or die('Cannot connect to Gmail: ' . imap_last_error());
         } catch (\Exception $exception) {
-            \Yii::$app->getSession()->setFlash('error', "Не вдалося встановити з'єднання з срвером вхідної пошти (IMAP)");
+            \Yii::$app->getSession()->setFlash('error', "Не вдалося встановити з'єднання з сервером вхідної пошти (IMAP)");
             return false;
         }
 
@@ -141,6 +141,12 @@ class EmailController
      */
     public function readingEmail($newEmails)
     {
+        if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'])) {
+
+            \Yii::$app->getSession()->setFlash('error', "Директорії attachments не існує");
+            return false;
+        }
+
         if($newEmails)
         {
             if (!$inbox = $this->getInbox())
@@ -185,6 +191,7 @@ class EmailController
 
 
     /**
+     * Create files for a attachments
      * @param $structure
      * @param $inbox
      * @param $emailNumber
@@ -293,5 +300,4 @@ class EmailController
 
         return '/'.$emailNumber.'/';
     }
-
 }

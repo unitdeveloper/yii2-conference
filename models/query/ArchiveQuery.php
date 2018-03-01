@@ -9,6 +9,9 @@ namespace app\models\query;
  */
 class ArchiveQuery extends \yii\db\ActiveQuery
 {
+    /**
+     * @return $this
+     */
     public function active()
     {
         return $this->andWhere(['active' => 1]);

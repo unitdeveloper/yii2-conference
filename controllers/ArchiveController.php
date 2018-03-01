@@ -9,6 +9,10 @@ use yii\web\HttpException;
 class ArchiveController extends SiteController
 {
 
+    /**
+     * Lists all Archive models.
+     * @return mixed
+     */
     public function actionIndex()
     {
         $archive = Archive::find()->active()->all();
@@ -18,6 +22,12 @@ class ArchiveController extends SiteController
         ]);
     }
 
+    /**
+     * Viewing a document PDP
+     * @param $id
+     * @return $this
+     * @throws HttpException
+     */
     public function actionViewPdf($id)
     {
         $archive = Archive::find()->where(['=', 'id', $id])->active()->one();

@@ -14,6 +14,7 @@ class CreatePdfForm extends Model
     {
         return [
             [['conference_id'], 'integer'],
+            [['conference_id'], 'required'],
             [['conference_id'], 'exist', 'skipOnError' => true, 'targetClass' => Conference::className(), 'targetAttribute' => ['conference_id' => 'id']],
         ];
     }

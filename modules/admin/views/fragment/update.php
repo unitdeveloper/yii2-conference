@@ -5,7 +5,7 @@ use yii\helpers\Html;
 /* @var $this yii\web\View */
 /* @var $model app\models\Fragment */
 
-$this->title = 'Update Fragment: {nameAttribute}';
+$this->title = 'Update Fragment: '.$model->header;
 $this->params['breadcrumbs'][] = ['label' => 'Fragments', 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => $model->name, 'url' => ['view', 'id' => $model->id]];
 $this->params['breadcrumbs'][] = 'Update';

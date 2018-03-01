@@ -138,6 +138,11 @@ class Material extends \yii\db\ActiveRecord
         return new \app\models\query\MaterialQuery(get_called_class());
     }
 
+    /**
+     * Forming html string for emails
+     * @param null $email
+     * @return string
+     */
     public function getEmailHtml($email = null)
     {
         if (!$email)
@@ -159,6 +164,10 @@ class Material extends \yii\db\ActiveRecord
         return "<span>$emails</span><br>";
     }
 
+    /**
+     * Forming html string for top tag material
+     * @return string
+     */
     public function getTopTagHtml()
     {
         $tagStr = trim(mb_substr(mb_stristr($this->top_tag, ':'), 1));
@@ -171,7 +180,7 @@ class Material extends \yii\db\ActiveRecord
 
             $html .=
                 "<li>
-                    <a href=".Url::to(['/matherial/search', 'q' => $tag]).">$tag</a>
+                    <a href=".Url::to(['/matherial/search', 'parameters' => $tag]).">$tag</a>
                 </li>"
             ;
         }
@@ -180,6 +189,10 @@ class Material extends \yii\db\ActiveRecord
 
     }
 
+    /**
+     * Getting information about the file size
+     * @return string
+     */
     public function getFileSize()
     {
         $file = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.$this->pdf_file;
@@ -217,6 +230,10 @@ class Material extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * Getting information about the structure of the material directory
+     * @return bool|string
+     */
     public function getDirStructure()
     {
         $dir = mb_strrchr($this->dir, '/', true);
@@ -241,6 +258,11 @@ class Material extends \yii\db\ActiveRecord
         return $result;
     }
 
+    /**
+     * Loading a word document into a working directory material
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
 
@@ -320,6 +342,10 @@ class Material extends \yii\db\ActiveRecord
         return parent::beforeSave($insert);
     }
 
+    /**
+     * Deleting work directory materials
+     * @return bool
+     */
     public function beforeDelete()
     {
         $dir = mb_strrchr($this->dir, '/', true);
@@ -341,6 +367,10 @@ class Material extends \yii\db\ActiveRecord
         return parent::beforeDelete();
     }
 
+    /**
+     * Deleting basic file (doc/docx, pdf, html) materials
+     * @return bool
+     */
     public function removeBasicFile()
     {
 
@@ -348,23 +378,34 @@ class Material extends \yii\db\ActiveRecord
 
             $word = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.$this->word_file;
 
-            $this->removeFile($word);
+            if (file_exists($word)) {
+                $this->removeFile($word);
+            }
         }
         if (!empty($this->pdf_file)) {
 
             $pdf = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.$this->pdf_file;
 
-            $this->removeFile($pdf);
+            if (file_exists($pdf)) {
+                $this->removeFile($pdf);
+            }
         }
 
         if (!empty($this->html_file)) {
 
             $html = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.$this->html_file;
 
-            $this->removeFile($html);
+            if (file_exists($html)) {
+                $this->removeFile($html);
+            }
         }
+
+        return true;
     }
 
+    /**
+     * @param $pathToFile
+     */
     public function removeFile($pathToFile)
     {
         if (file_exists($pathToFile)) {
@@ -373,6 +414,10 @@ class Material extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * Delete specified directory
+     * @param $dir
+     */
     public static function removeDirectory($dir) {
 
         if ($objs = glob($dir."/*")) {
@@ -383,5 +428,28 @@ class Material extends \yii\db\ActiveRecord
             }
         }
         rmdir($dir);
+    }
+
+    /**
+     * Composing a request for material search
+     * @param $query
+     * @return object
+     */
+    public static function search($query)
+    {
+        $response = Material::find()
+            ->where(['like', 'udk', $query])
+            ->orWhere(['like', 'author', $query])
+            ->orWhere(['like', 'university', $query])
+            ->orWhere(['like', 'email', $query])
+            ->orWhere(['like', 'material_name', $query])
+            ->orWhere(['like', 'ru_annotation', $query])
+            ->orWhere(['like', 'ua_annotation', $query])
+            ->orWhere(['like', 'us_annotation', $query])
+            ->orWhere(['like', 'ru_tag', $query])
+            ->orWhere(['like', 'ua_tag', $query])
+            ->orWhere(['like', 'us_tag', $query]);
+
+        return $response;
     }
 }

@@ -53,6 +53,7 @@ class Config extends \yii\db\ActiveRecord
     }
 
     /**
+     * Conversion of a config value to a string
      * @return string
      */
     public function getValueToStr()
@@ -87,6 +88,7 @@ class Config extends \yii\db\ActiveRecord
     }
 
     /**
+     * Getting the html line from the config value
      * @return string
      */
     public function getValue()
@@ -114,6 +116,7 @@ class Config extends \yii\db\ActiveRecord
     }
 
     /**
+     * Forming a valid value before writing to the database
      * @param bool $insert
      * @return bool
      */
@@ -127,7 +130,7 @@ class Config extends \yii\db\ActiveRecord
 
                 $arr = array_diff($arr, ['']);
                 if (count($arr) != 3) {
-                    Yii::$app->getSession()->setFlash('error', 'Incorrectly format value');
+                    Yii::$app->getSession()->setFlash('error', 'Неправильно вказано значення формату');
                     return false;
                 }
                 $data['hostname'] = trim($arr[0]);

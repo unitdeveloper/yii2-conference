@@ -51,13 +51,19 @@ class Conference extends \yii\db\ActiveRecord
         return $this->hasMany(Material::className(), ['conference_id' => 'id']);
     }
 
+    /**
+     * Deleting work directory related materials
+     * @return bool
+     */
     public function beforeDelete()
     {
         $materials = $this->materials;
 
-        \Yii::$app->queue->push(new RemoveMaterialDirJob([
+        if(!\Yii::$app->queue->push(new RemoveMaterialDirJob([
             'materials' => $materials,
-        ]));
+        ]))) {
+            \Yii::$app->getSession()->setFlash('error', "Не вдалося видалити робочі директорії матеріалів");
+        }
 
         return parent::beforeDelete();
     }

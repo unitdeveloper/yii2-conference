@@ -7,6 +7,7 @@ use app\models\job\MassSendMailJob;
 use app\models\Material;
 use app\models\Participant;
 use app\models\User;
+use app\modules\admin\Module;
 use yii\base\DynamicModel;
 use yii\base\Exception;
 use yii\helpers\FileHelper;
@@ -20,6 +21,25 @@ use yii\web\UploadedFile;
  */
 class DefaultController extends Controller
 {
+    /**
+     * DefaultController constructor.
+     * @param $id
+     * @param Module $module
+     * @param array $config
+     */
+    public function __construct($id, Module $module, array $config = [])
+    {
+        $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'];
+        if (!file_exists($dir)) {
+
+            try {
+                FileHelper::createDirectory($dir);
+            } catch (Exception $exception) {
+                return $exception;
+            }
+        }
+        parent::__construct($id, $module, $config);
+    }
 
     /**
      * Renders the index view for the module
@@ -45,7 +65,9 @@ class DefaultController extends Controller
         ]);
     }
 
+
     /**
+     * Saving editor files to a $sub directory
      * @param string $sub
      * @return array
      * @throws BadRequestHttpException
@@ -105,6 +127,7 @@ class DefaultController extends Controller
     }
 
     /**
+     * Saving images of the editor to the directory $sub
      * @param string $sub
      * @return array
      * @throws BadRequestHttpException
@@ -166,10 +189,8 @@ class DefaultController extends Controller
         }
     }
 
-
     /**
      * @return Response
-     * @throws \HttpException
      */
     public function actionReaderEmail()
     {
@@ -183,6 +204,10 @@ class DefaultController extends Controller
         return $this->redirect(['index']);
     }
 
+    /**
+     * Mailing for a participants conference
+     * @return string|Response
+     */
     public function actionMailing()
     {
         $model = new MailingForm();

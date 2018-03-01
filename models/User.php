@@ -76,11 +76,17 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    /**
+     * @return mixed
+     */
     public function getStatusName()
     {
         return ArrayHelper::getValue(self::getStatusesArray(), $this->status);
     }
 
+    /**
+     * @return array
+     */
     public static function getStatusesArray()
     {
         return [
@@ -90,6 +96,9 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    /**
+     * @return array
+     */
     public function behaviors()
     {
         return [
@@ -97,26 +106,46 @@ class User extends ActiveRecord implements IdentityInterface
         ];
     }
 
+    /**
+     * @param int|string $id
+     * @return null|IdentityInterface|static
+     */
     public static function findIdentity($id)
     {
         return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
     }
 
+    /**
+     * @param mixed $token
+     * @param null $type
+     * @return void|IdentityInterface
+     * @throws NotSupportedException
+     */
     public static function findIdentityByAccessToken($token, $type = null)
     {
         throw new NotSupportedException('findIdentityByAccessToken is not implemented.');
     }
 
+    /**
+     * @return int|mixed|string
+     */
     public function getId()
     {
         return $this->getPrimaryKey();
     }
 
+    /**
+     * @return string
+     */
     public function getAuthKey()
     {
         return $this->auth_key;
     }
 
+    /**
+     * @param string $authKey
+     * @return bool
+     */
     public function validateAuthKey($authKey)
     {
         return $this->getAuthKey() === $authKey;
@@ -145,7 +174,8 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
-     * @param string $password
+     * @param $password
+     * @throws \yii\base\Exception
      */
     public function setPassword($password)
     {
@@ -160,6 +190,11 @@ class User extends ActiveRecord implements IdentityInterface
         $this->auth_key = Yii::$app->security->generateRandomString();
     }
 
+    /**
+     * Generate auth key for user
+     * @param bool $insert
+     * @return bool
+     */
     public function beforeSave($insert)
     {
         if (parent::beforeSave($insert)) {
@@ -207,6 +242,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     /**
      * Generates new password reset token
+     * @throws \yii\base\Exception
      */
     public function generatePasswordResetToken()
     {
@@ -232,6 +268,7 @@ class User extends ActiveRecord implements IdentityInterface
 
     /**
      * Generates email confirmation token
+     * @throws \yii\base\Exception
      */
     public function generateEmailConfirmToken()
     {

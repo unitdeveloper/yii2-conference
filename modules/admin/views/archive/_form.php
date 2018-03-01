@@ -18,7 +18,6 @@ use yii\widgets\ActiveForm;
     <?=$form->field($model, 'pdfFile')->widget(\kartik\file\FileInput::classname(), [
         'options' => ['accept' => 'file/*'],
         'pluginOptions' => [
-//            'showPreview' => false,
             'showCaption' => true,
             'showRemove' => true,
             'showUpload' => false,
@@ -56,8 +55,6 @@ use yii\widgets\ActiveForm;
             'initialPreview'=>[
                 $model->image ? Html::img("/archive/" . $model->image, ['height' => '100%']) : null
             ],
-//            'overwriteInitial'=>true,
-//            'initialPreviewAsData'=>true,
         ],
     ]);?>
     <?= $form->field($model, 'active')->checkbox() ?>

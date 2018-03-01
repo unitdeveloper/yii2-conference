@@ -16,6 +16,12 @@ class Converter extends Component
         parent::init();
     }
 
+    /**
+     * @param $pathToFile
+     * @param $fileBasename
+     * @param $needleExtension
+     * @return bool
+     */
     public function convert($pathToFile, $fileBasename, $needleExtension)
     {
        if (!file_exists($pathToFile)) {

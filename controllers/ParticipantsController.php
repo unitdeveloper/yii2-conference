@@ -9,8 +9,10 @@ use yii\data\ActiveDataProvider;
 
 class ParticipantsController extends SiteController
 {
-//    public $layout = 'main';
-
+    /**
+     * Lists all Participants conference.
+     * @return mixed
+     */
     public function actionIndex()
     {
         $dataProvider = new ActiveDataProvider([

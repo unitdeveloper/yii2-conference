@@ -12,7 +12,7 @@ class SearchForm extends Model
     public function rules()
     {
         return [
-            ['q', 'string'],
+            ['q', 'string', 'min' => 2, 'max' => 255],
         ];
     }
 }

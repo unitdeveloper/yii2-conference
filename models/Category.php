@@ -62,14 +62,19 @@ class Category extends \yii\db\ActiveRecord
         return new \app\models\query\CategoryQuery(get_called_class());
     }
 
+    /**
+     * Deleting work directory related materials
+     * @return bool
+     */
     public function beforeDelete()
     {
         $materials = $this->materials;
 
-        \Yii::$app->queue->push(new RemoveMaterialDirJob([
+        if(!\Yii::$app->queue->push(new RemoveMaterialDirJob([
             'materials' => $materials,
-        ]));
-
+        ]))) {
+            \Yii::$app->getSession()->setFlash('error', "Не вдалося видалити робочі директорії матеріалів");
+        }
         return parent::beforeDelete();
     }
 }

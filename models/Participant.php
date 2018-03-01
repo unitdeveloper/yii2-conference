@@ -52,6 +52,10 @@ class Participant extends \yii\db\ActiveRecord
         return $this->hasMany(Material::className(), ['participant_id' => 'id']);
     }
 
+    /**
+     * Deleting work directory related materials
+     * @return bool
+     */
     public function beforeDelete()
     {
         $materials = $this->materials;

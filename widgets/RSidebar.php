@@ -7,16 +7,15 @@ use yii\helpers\Html;
 
 class RSidebar extends Widget
 {
-//    public $message;
-
     public function init()
     {
         parent::init();
-//        if ($this->message === null) {
-//            $this->message = 'Hello World';
-//        }
     }
 
+    /**
+     * Generating html for right sidebar
+     * @return string
+     */
     public function run()
     {
         $archive = Archive::find()->orderBy('id DESC')->one();

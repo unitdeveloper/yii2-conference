@@ -18,6 +18,12 @@ class MaterialController extends Controller
 {
     public $pathToAttachments;
 
+    /**
+     * MaterialController constructor.
+     * @param $id
+     * @param Module $module
+     * @param array $config
+     */
     public function __construct($id, Module $module, array $config = [])
     {
         parent::__construct($id, $module, $config);
@@ -81,10 +87,6 @@ class MaterialController extends Controller
         if ($model->save()) {
             return $this->redirect(['update', 'id' => $model->id]);
         }
-//
-//        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-//            return $this->redirect(['view', 'id' => $model->id]);
-//        }
 
         return $this->render('create', [
             'model' => $model,
@@ -112,6 +114,7 @@ class MaterialController extends Controller
     }
 
     /**
+     * Conversion word file in pdf and html
      * @param $id
      * @return \yii\web\Response
      * @throws NotFoundHttpException
@@ -122,7 +125,7 @@ class MaterialController extends Controller
 
         $pathToWordFile = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$model->dir.$model->word_file;
 
-        if(!ParsingController::checkExistWordFile($model, $pathToWordFile))
+        if (!ParsingController::checkExistWordFile($model, $pathToWordFile))
             return $this->redirect(['view', 'id' => $model->id]);
 
         if (!ParsingController::checkNeedleFile($model, $pathToWordFile))
@@ -133,6 +136,7 @@ class MaterialController extends Controller
     }
 
     /**
+     * Saving parsing data
      * @param $model Material
      * @param $parsData
      * @return bool
@@ -171,11 +175,13 @@ class MaterialController extends Controller
     public function actionParsing($id)
     {
         $model = $this->findModel($id);
-
         $result = ParsingController::parsing($model);
+
         if (!$result)
             return $this->redirect(['view', 'id' => $model->id]);
+
         $this->saveData($model, $result);
+
         return $this->redirect(['view', 'id' => $model->id]);
     }
 
@@ -212,6 +218,11 @@ class MaterialController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
+    /**
+     * @param $id
+     * @return $this
+     * @throws HttpException
+     */
     public function actionViewPdf($id)
     {
         $material = Material::find()->where(['=', 'id', $id])->one();
@@ -224,6 +235,11 @@ class MaterialController extends Controller
         throw new HttpException(404, 'Pdf файла не существует');
     }
 
+    /**
+     * @param $resource
+     * @return $this
+     * @throws NotFoundHttpException
+     */
     public function actionDownload($resource)
     {
         if (file_exists($resource))

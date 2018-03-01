@@ -4,6 +4,7 @@ namespace app\models;
 
 use Faker\Provider\Image;
 use Yii;
+use yii\helpers\FileHelper;
 use yii\helpers\Url;
 use yii\web\UploadedFile;
 
@@ -55,6 +56,7 @@ class Archive extends \yii\db\ActiveRecord
     }
 
     /**
+     * Get full image for frontend
      * @return string
      */
     public function getImage()
@@ -64,6 +66,7 @@ class Archive extends \yii\db\ActiveRecord
     }
 
     /**
+     * Get small image
      * @return string
      */
     public function getSmallImage()
@@ -72,16 +75,38 @@ class Archive extends \yii\db\ActiveRecord
         return $dir.'120x150/'.$this->image;
     }
 
+
     /**
+     * Download pdf files and pictures
      * @param bool $insert
      * @return bool
      * @throws \yii\base\Exception
      */
     public function beforeSave($insert)
     {
+        $dir = Yii::getAlias('@webroot').'/archive/';
+
+        if (!file_exists($dir)) {
+
+            try {
+                FileHelper::createDirectory($dir);
+            } catch (\Exception $exception) {
+                return false;
+            }
+        }
+
         if ($imageFile = UploadedFile::getInstance($this, 'imageFile')) {
 
-            $dir = Yii::getAlias('@webroot').'/archive/';
+
+            if (!file_exists($dir.'120x150/')) {
+
+                try {
+                    FileHelper::createDirectory($dir);
+                } catch (\Exception $exception) {
+                    return false;
+                }
+            }
+
             if ($this->image && file_exists($dir.$this->image)){
 
                 unlink($dir.$this->image);
@@ -103,6 +128,14 @@ class Archive extends \yii\db\ActiveRecord
         if ($pdfFile = UploadedFile::getInstance($this, 'pdfFile')) {
 
             $dir = Yii::getAlias('@webroot').'/archive/pdf/';
+            if (!file_exists($dir)) {
+
+                try {
+                    FileHelper::createDirectory($dir);
+                } catch (\Exception $exception) {
+                    return false;
+                }
+            }
             if ($this->pdf_file && file_exists($dir.$this->pdf_file)){
 
                 unlink($dir.$this->pdf_file);
@@ -143,11 +176,19 @@ class Archive extends \yii\db\ActiveRecord
         }
     }
 
+    /**
+     * @return query\ArchiveQuery|\yii\db\ActiveQuery
+     */
     public static function find()
     {
         return new \app\models\query\ArchiveQuery(get_called_class());
     }
 
+    /**
+     * Create pdf file for archive
+     * @param $model
+     * @return bool
+     */
     public static function createPdf($model)
     {
 
@@ -165,6 +206,15 @@ class Archive extends \yii\db\ActiveRecord
         }
 
         $dataDir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].'archive/';
+        if (!file_exists($dataDir)) {
+
+            try {
+                FileHelper::createDirectory($dataDir);
+            } catch (\Exception $exception) {
+                \Yii::$app->getSession()->setFlash('error', "Не вдалося створити директорію ".$dataDir);
+                return false;
+            }
+        }
         $conferenceName = str_replace(" ", "_", $conference->name);
         $outputName = $dataDir.$conferenceName;
 
@@ -181,5 +231,25 @@ class Archive extends \yii\db\ActiveRecord
         }
         \Yii::$app->getSession()->setFlash('success', "Pdf файл $outputName успішно згенерований");
         return true;
+    }
+
+    /**
+     * Searching creating files for archive
+     * @return array|bool
+     */
+    public static function findFiles()
+    {
+        $dataDir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].'archive/';
+        if (!file_exists($dataDir)) {
+
+            try {
+                FileHelper::createDirectory($dataDir);
+            } catch (\Exception $exception) {
+                \Yii::$app->getSession()->setFlash('error', "Не вдалося створити директорію ".$dataDir);
+                return false;
+            }
+        }
+
+        return FileHelper::findFiles(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].'/archive/');
     }
 }

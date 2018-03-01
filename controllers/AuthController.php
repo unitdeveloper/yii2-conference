@@ -47,6 +47,9 @@ class AuthController extends SiteController
         return $this->goHome();
     }
 
+    /**
+     * @return string|Response
+     */
     public function actionSignup()
     {
 
@@ -63,6 +66,11 @@ class AuthController extends SiteController
         ]);
     }
 
+    /**
+     * @param $token
+     * @return Response
+     * @throws BadRequestHttpException
+     */
     public function actionEmailConfirm($token)
     {
         try {
@@ -80,6 +88,9 @@ class AuthController extends SiteController
         return $this->goHome();
     }
 
+    /**
+     * @return string|Response
+     */
     public function actionPasswordResetRequest()
     {
 
@@ -99,6 +110,11 @@ class AuthController extends SiteController
         ]);
     }
 
+    /**
+     * @param $token
+     * @return string|Response
+     * @throws BadRequestHttpException
+     */
     public function actionPasswordReset($token)
     {
         try {

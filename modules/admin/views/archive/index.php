@@ -60,8 +60,6 @@ $this->params['breadcrumbs'][] = $this->title;
             <tr>
                 <th>#</th>
                 <th>Pdf</th>
-<!--                <th>Count material</th>-->
-<!--                <th>Username</th>-->
             </tr>
             </thead>
             <tbody>

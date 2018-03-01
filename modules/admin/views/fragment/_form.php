@@ -12,8 +12,6 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
-
     <?= $form->field($model, 'header')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'content')->widget(\vova07\imperavi\Widget::className(), [

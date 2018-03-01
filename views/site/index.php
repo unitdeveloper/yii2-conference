@@ -16,7 +16,9 @@ $this->title = Yii::$app->name;
 
 
         <div itemprop="articleBody">
+            <?php if($fragment): ?>
             <?=$fragment->content?>
+            <?php endif; ?>
             <div class="attachmentsContainer">
 
                 <div class="attachmentsList" id="attachmentsList_com_content_default_77"></div>

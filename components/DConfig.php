@@ -11,6 +11,9 @@ class DConfig extends Component
 {
     protected $data = array();
 
+    /**
+     *Getting all params
+     */
     public function init()
     {
         $items = Config::find()->all();
@@ -22,15 +25,27 @@ class DConfig extends Component
         parent::init();
     }
 
+    /**
+     * Get parameter by key
+     * @param $key
+     * @return bool|mixed
+     */
     public function get($key)
     {
         if (array_key_exists($key, $this->data)){
             return $this->data[$key];
         } else {
-            throw new Exception('Undefined parameter '.$key);
+            //throw new Exception('Undefined parameter '.$key);
+            return false;
         }
     }
 
+    /**
+     * Set parameter value by key
+     * @param $key
+     * @param $value
+     * @throws Exception
+     */
     public function set($key, $value)
     {
         $model = Config::findOne(['param'=>$key]);

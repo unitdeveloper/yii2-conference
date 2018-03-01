@@ -41,8 +41,7 @@ class ArchiveController extends Controller
         $searchModel = new ArchiveSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        $pdfFiles = FileHelper::findFiles(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].'/archive/');
-
+        $pdfFiles = Archive::findFiles();
 
         return $this->render('index', [
             'searchModel' => $searchModel,
@@ -135,6 +134,11 @@ class ArchiveController extends Controller
         throw new NotFoundHttpException('The requested page does not exist.');
     }
 
+    /**
+     * @param $id
+     * @return $this
+     * @throws HttpException
+     */
     public function actionViewPdf($id)
     {
         $archive = Archive::find()->where(['=', 'id', $id])->one();
@@ -147,6 +151,9 @@ class ArchiveController extends Controller
         throw new HttpException(404, 'Pdf файла не существует');
     }
 
+    /**
+     * @return string|\yii\web\Response
+     */
     public function actionCreatePdf()
     {
         $model = new \app\models\form\CreatePdfForm();
@@ -162,6 +169,10 @@ class ArchiveController extends Controller
         ]);
     }
 
+    /**
+     * @param $resource
+     * @return \yii\web\Response
+     */
     public function actionRemove($resource)
     {
         if (!file_exists($resource)) {

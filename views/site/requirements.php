@@ -7,34 +7,15 @@
 
 
         <div itemprop="articleBody">
-
+            <?php if($requirementsFragment): ?>
             <h2 itemprop="headline"><?=$requirementsFragment->header?></h2>
             <?=$requirementsFragment->content?>
+            <?php endif; ?>
 
-            <p style="text-align: justify;">
-                <strong>Матеріали надсилаються на пошту конференції **** із позначкою «Конференція».</strong>
-            </p>
-            <p style="text-align: justify;">
-                <strong>
-                    <a href="<?=\yii\helpers\Url::to(['/site/download', 'resource' => 'IM_ua_1.docx'])?>">Завантажити ІНФОРМАЦІЙНЕ ПОВІДОМЛЕННЯ та ЗАЯВКУ НА УЧАСТЬ</a>
-                    <br/>
-                </strong>
-                <strong>
-                    <a href="<?=\yii\helpers\Url::to(['/site/download', 'resource' => 'IM_ru_1.docx'])?>">Скачать ИНФОРМАЦИОННОЕ СООБЩЕНИЕ и ЗАЯВКУ НА УЧАСТИЕ</a>
-                    <br/>
-                </strong>
-                <strong>
-                    <a href="<?=\yii\helpers\Url::to(['/site/download', 'resource' => 'IM_us_1.docx'])?>">Download notification and application for participation</a>
-                    <br/>
-                </strong>
-                <strong>
-                    <a href="<?=\yii\helpers\Url::to(['/site/download', 'resource' => 'IM_pl_1.docx'])?>">Pobierz ogłoszenie i wniosków o dopuszczenie do udziału</a>
-                </strong>
-            </p>
-
+            <?php if($copyrightFragment): ?>
             <h2 itemprop="headline"><?=$copyrightFragment->header?></h2>
             <?=$copyrightFragment->content?>
-
+            <?php endif; ?>
             <div class="attachmentsContainer">
 
                 <div class="attachmentsList" id="attachmentsList_com_content_default_77"></div>

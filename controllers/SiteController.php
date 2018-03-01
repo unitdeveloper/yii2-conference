@@ -82,6 +82,10 @@ class SiteController extends Controller
         ]);
     }
 
+    /**
+     * Displays requirements fragment.
+     * @return string
+     */
     public function actionRequirements()
     {
         $requirementsFragment = Fragment::find()->where(['=','name','Requirements_for_registration'])->one();
@@ -94,6 +98,10 @@ class SiteController extends Controller
         ]);
     }
 
+    /**
+     * Displays organizers fragment.
+     * @return string
+     */
     public function actionOrganizers()
     {
         $fragment = Fragment::find()->where(['=','name','Organizers'])->one();
@@ -103,6 +111,10 @@ class SiteController extends Controller
         ]);
     }
 
+    /**
+     * Displays output data fragment.
+     * @return string
+     */
     public function actionOutputData()
     {
         $fragment = Fragment::find()->where(['=','name','Output_data'])->one();
@@ -112,8 +124,12 @@ class SiteController extends Controller
         ]);
     }
 
-
-
+    /**
+     * Download resource
+     * @param $resource
+     * @return $this
+     * @throws NotFoundHttpException
+     */
     public function actionDownload($resource)
     {
         $file = Yii::getAlias('@webroot').'/resources/'.$resource;

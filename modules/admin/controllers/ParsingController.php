@@ -21,6 +21,10 @@ class ParsingController extends Controller
         parent::__construct($id, $module, $config);
     }
 
+    /**
+     * @param $model
+     * @return array|bool
+     */
     public static function parsing($model)
     {
         self::$pathToMaterialAttachments = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'];
@@ -28,10 +32,10 @@ class ParsingController extends Controller
         if (!self::checkExistWordFile($model))
             return false;
 
-        if (!self::checkNeedleFile($model))
+        if (!$wordData = self::getWordData($model))
             return false;
 
-        if (!$wordData = self::getWordData($model))
+        if (!self::checkNeedleFile($model))
             return false;
 
         if (!$htmlData = self::getHtmlData($model))
@@ -65,6 +69,7 @@ class ParsingController extends Controller
 
 
     /**
+     * Check for the existence doc or docx files
      * @param $model Material
      * @param null $pathToWordFile
      * @return bool
@@ -99,10 +104,11 @@ class ParsingController extends Controller
         $extension  = '.'.$info->getExtension();
         $basename   = $info->getBasename($extension);
 
-        return ['extension' => $extension, 'basename' => $basename];// add compact
+        return ['extension' => $extension, 'basename' => $basename];
     }
 
     /**
+     * Check for the existence pdf and html files
      * @param $model Material
      * @param null $pathToWordFile
      * @return bool
@@ -121,10 +127,10 @@ class ParsingController extends Controller
         $infoForFile = self::getInfoForFile($pathToWordFile);
 
         try {
-            if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$model->dir.$infoForFile['basename'].'.html'))
+//            if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$model->dir.$infoForFile['basename'].'.html'))
                 \Yii::$app->converter->convert($pathToWordFile, $infoForFile['basename'], 'html');
 
-            if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$model->dir.$infoForFile['basename'].'.pdf'))
+//            if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$model->dir.$infoForFile['basename'].'.pdf'))
                 \Yii::$app->converter->convert($pathToWordFile, $infoForFile['basename'], 'pdf');
 
             $model->pdf_file   = $infoForFile['basename'].".pdf";
@@ -139,6 +145,7 @@ class ParsingController extends Controller
     }
 
     /**
+     * Getting information about word document for a parsing
      * @param $model Material
      * @return array|bool|null
      */
@@ -231,6 +238,7 @@ class ParsingController extends Controller
     }
 
     /**
+     * Getting information about html document for a parsing
      * @param $model Material
      * @return array|bool
      */
@@ -318,6 +326,7 @@ class ParsingController extends Controller
     }
 
     /**
+     * Getting information about pdf document for a parsing
      * @param $model Material
      * @return array|bool
      */
@@ -356,6 +365,7 @@ class ParsingController extends Controller
     }
 
     /**
+     * Getting information about name material
      * @param $wordData
      * @param $htmlData
      * @return bool
@@ -378,6 +388,7 @@ class ParsingController extends Controller
     }
 
     /**
+     * Analysis material name for convenient parsing
      * @param $materialName
      * @return array|bool
      */
@@ -398,6 +409,7 @@ class ParsingController extends Controller
     }
 
     /**
+     * Getting top information header of the material
      * @param $pdfData
      * @param $htmlData
      * @param $parsMaterialName
@@ -439,6 +451,7 @@ class ParsingController extends Controller
     }
 
     /**
+     * Cutting e-mail from the information line
      * @param $topInfoString
      * @param $email
      * @return null|string|string[]
@@ -482,6 +495,7 @@ class ParsingController extends Controller
     }
 
     /**
+     * Cutting udk from the information line
      * @param $topInfoString
      * @param $udk
      * @return string
@@ -560,6 +574,7 @@ class ParsingController extends Controller
     }
 
     /**
+     * Cutting name authors from the information line
      * @param $topInfoString
      * @param $nameAuthors
      * @return null|string|string[]
@@ -585,8 +600,6 @@ class ParsingController extends Controller
             $university = str_replace('Е-mail:', '', $topInfoString);
         else
             $university = $topInfoString;
-
-//        die($university);
 
         $universityArr = explode(',',$university);
 
@@ -812,6 +825,7 @@ class ParsingController extends Controller
     }
 
     /**
+     * Collection of all information
      * @param $email
      * @param $udk
      * @param $nameAuthors
@@ -876,6 +890,7 @@ class ParsingController extends Controller
 
 
     /**
+     * Generating html for the material preview page
      * @param $email
      * @param $udk
      * @param $nameAuthors
