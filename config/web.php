@@ -1,5 +1,7 @@
 <?php
 
+use \codemix\yii2confload\Config;
+
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
@@ -58,12 +60,12 @@ $config = [
             // for the mailer to send real emails.
             'useFileTransport' => false,
             'transport' => [
-                'class' => 'Swift_SmtpTransport',
-                'host' => 'smtp.gmail.com',
-                'username' => '',
-                'password'=> '',
-                'port' => '',
-                'encryption' => 'ssl',
+                'class' => Config::env('TRANSPORT_CLASS', 'class'),
+                'host' => Config::env('TRANSPORT_HOST', 'host'),
+                'username' => Config::env('TRANSPORT_USERNAME', 'username'),
+                'password'=> Config::env('TRANSPORT_PASSWORD', 'password'),
+                'port' => Config::env('TRANSPORT_PORT', 'port'),
+                'encryption' => Config::env('TRANSPORT_ENCRYPTION', 'encryption'),
             ],
         ],
         'log' => [

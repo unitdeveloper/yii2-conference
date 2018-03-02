@@ -1,12 +1,15 @@
 <?php
 
-//defined('YII_DEBUG') or define('YII_DEBUG', true);
-//defined('YII_ENV') or define('YII_ENV', 'dev');
+use codemix\yii2confload\Config;
+
+defined('YII_DEBUG') or define('YII_DEBUG', true);
+defined('YII_ENV') or define('YII_ENV', 'dev');
 
 require(__DIR__ . '/../vendor/autoload.php');
 require(__DIR__ . '/../vendor/yiisoft/yii2/Yii.php');
 
-$localConfig = (file_exists(__DIR__ . '/../config/web-local.php')) ?  require(__DIR__ . '/../config/web-local.php') : [];
-$config = yii\helpers\ArrayHelper::merge(require(__DIR__ . '/../config/web.php'), $localConfig );
+Config::initEnv('/home/max/dev/diplom_git/');
+
+$config = require __DIR__ . '/../config/web.php';
 
 (new yii\web\Application($config))->run();

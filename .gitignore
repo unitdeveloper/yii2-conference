@@ -1,3 +1,6 @@
+#env file
+.env
+
 # phpstorm project files
 .idea
 
