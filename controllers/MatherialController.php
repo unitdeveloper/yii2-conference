@@ -73,7 +73,7 @@ class MatherialController extends SiteController
         }
 
         //Set meta
-        $query = Material::search($q);
+        $query = Material::searchByQuery($q);
 
         $pages = new Pagination([
             'totalCount' => $query->count(),

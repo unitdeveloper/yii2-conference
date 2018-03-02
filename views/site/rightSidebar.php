@@ -20,7 +20,7 @@
     <a href="#" onclick="doGTranslate('uk|ru');return false;" title="Russian" class="flag nturl" style="background-position:-500px -200px;"><img src="/img/translate/blank.png" height="16" width="16" alt="Russian" /></a>
     <div class="search mod_search63">
 
-        <?php $form = \yii\widgets\ActiveForm::begin(['action' => \yii\helpers\Url::to(['matherial/search']), 'method' => 'GET']) ?>
+        <?php $form = \yii\widgets\ActiveForm::begin(['action' => \yii\helpers\Url::to(['matherial/searchByQuery']), 'method' => 'GET']) ?>
 
         <?= $form->field($model, 'q')->textInput(['class' => 'inputbox search-query', 'type' => 'search', 'placeholder' => 'Пошук...'])->label(''); ?>
 
