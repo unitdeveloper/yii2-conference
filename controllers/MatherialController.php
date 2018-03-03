@@ -59,7 +59,7 @@ class MatherialController extends SiteController
     {
         $model = new SearchForm();
 
-        if ($model->load(\Yii::$app->request->post())) {
+        if ($model->load(\Yii::$app->request->get())) {
             $q = trim($model->q);
         } else {
             return $this->redirect(['index']);

@@ -180,7 +180,7 @@ class Material extends \yii\db\ActiveRecord
 
             $html .=
                 "<li>
-                    <a href=".Url::to(['/matherial/searchByQuery', 'parameters' => $tag]).">$tag</a>
+                    <a href=".Url::to(['/matherial/search', 'parameters' => $tag]).">$tag</a>
                 </li>"
             ;
         }
