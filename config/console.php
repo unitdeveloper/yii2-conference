@@ -2,6 +2,8 @@
 
 use codemix\yii2confload\Config;
 
+Config::initEnv('/home/max/dev/diplom_git/');
+
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
