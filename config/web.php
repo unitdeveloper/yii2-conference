@@ -15,6 +15,7 @@ $config = [
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
+        '@yiister/gentelella/assets/src' => __DIR__.'/../vendor/yiister/yii2-gentelella/assets/src',
     ],
     'components' => [
         'redis' => [

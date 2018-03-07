@@ -14,7 +14,7 @@ return [
                     </p><p><strong>Матеріали надсилаються на пошту конференції <a href=\"mailto:auvp@lntu.edu.ua\">auvp@lntu.edu.ua</a> із позначкою «Конференція».</strong>
                     </p><p>
                     <strong><a href=\"/resources/fragment/1519848820_9wUk31.docx\">Завантажити ІНФОРМАЦІЙНЕ ПОВІДОМЛЕННЯ та ЗАЯВКУ НА УЧАСТЬ</a><br></strong>
-                    <strong><a href=\"http://web.dev/resources/fragment/1519848865_-lXnBg.docx\">Скачать ИНФОРМАЦИОННОЕ СООБЩЕНИЕ и ЗАЯВКУ НА УЧАСТИЕ</a><br></strong>
+                    <strong><a href=\"/resources/fragment/1519848865_-lXnBg.docx\">Скачать ИНФОРМАЦИОННОЕ СООБЩЕНИЕ и ЗАЯВКУ НА УЧАСТИЕ</a><br></strong>
                     <strong><a href=\"/resources/fragment/1519848922_fnpgEv.docx\">Download notification and application for participation</a><span class=\"redactor-invisible-space\"><br></span></strong>
                     <span class=\"redactor-invisible-space\"><a href=\"/resources/fragment/1519848948_UBVa7t.docx\"><strong>Pobierz ogłoszenie i wniosków o dopuszczenie do udziału</strong></a><span class=\"redactor-invisible-space\"><br></span></span>
                     </p>"
