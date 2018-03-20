@@ -90,7 +90,7 @@ class ParsingController extends Controller
             }
             return true;
         }
-        \Yii::$app->getSession()->setFlash('error', "Такого файла или директории не существует $pathToWordFile");
+        \Yii::$app->getSession()->setFlash('error', "Word файла не знайдено");
         return false;
     }
 
@@ -120,19 +120,25 @@ class ParsingController extends Controller
 
         if (!file_exists($pathToWordFile)) {
 
-            \Yii::$app->getSession()->setFlash('error', "Такого файла или директории не существует $pathToWordFile");
+            \Yii::$app->getSession()->setFlash('error', "Word файла не знайдено");
             return false;
         }
 
         $infoForFile = self::getInfoForFile($pathToWordFile);
 
+        if(!\Yii::$app->converter->convert($pathToWordFile, $infoForFile['basename'], 'html'))
+            return false;
+
+        if(!\Yii::$app->converter->convert($pathToWordFile, $infoForFile['basename'], 'pdf'))
+            return false;
+
+//        if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$model->dir.$infoForFile['basename'].'.html'))
+//            \Yii::$app->converter->convert($pathToWordFile, $infoForFile['basename'], 'html');
+//
+//        if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$model->dir.$infoForFile['basename'].'.pdf'))
+//            \Yii::$app->converter->convert($pathToWordFile, $infoForFile['basename'], 'pdf');
+
         try {
-//            if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$model->dir.$infoForFile['basename'].'.html'))
-                \Yii::$app->converter->convert($pathToWordFile, $infoForFile['basename'], 'html');
-
-//            if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$model->dir.$infoForFile['basename'].'.pdf'))
-                \Yii::$app->converter->convert($pathToWordFile, $infoForFile['basename'], 'pdf');
-
             $model->pdf_file   = $infoForFile['basename'].".pdf";
             $model->html_file  = $infoForFile['basename'].".html";
             $model->updated_at = date('Y-m-d');
@@ -155,7 +161,7 @@ class ParsingController extends Controller
 
         if (!file_exists($pathToWordFile)) {
 
-            \Yii::$app->getSession()->setFlash('error', "Такого файла или директории не существует $pathToWordFile");
+            \Yii::$app->getSession()->setFlash('error', "Word файла не знайдено");
             return false;
         }
 
@@ -177,6 +183,7 @@ class ParsingController extends Controller
         $wordMatherialName  = '';
         $wordBoldString     = '';
 
+        /** @var IOFactory $phpWord */
         foreach ($phpWord->getSections() as $section)
         {
             $arrays = $section->getElements();
@@ -255,7 +262,7 @@ class ParsingController extends Controller
         $infoForFile = self::getInfoForFile($pathToHtmlFile);
 
         if ($infoForFile['extension'] != '.html') {
-            \Yii::$app->getSession()->setFlash('error', "Файл $pathToHtmlFile не является Html файлом");
+            \Yii::$app->getSession()->setFlash('error', "Html файла не знайдено");
             return false;
         }
 
@@ -343,7 +350,7 @@ class ParsingController extends Controller
         $infoForFile = self::getInfoForFile($pathToPdfFile);
 
         if ($infoForFile['extension'] != '.pdf') {
-            \Yii::$app->getSession()->setFlash('error', "Файл $pathToPdfFile не является Pdf файлом");
+            \Yii::$app->getSession()->setFlash('error', "Pdf файла не знайдено");
             return false;
         }
         $parser = new Pdf();
@@ -860,20 +867,23 @@ class ParsingController extends Controller
             }
         }
         $parsingData = [
-            'udk'           => $udk,
-            'author'        => $nameAuthors,
-            'university'    => $university,
-            'email'         => $email,
-            'material_name' => $materialName,
-            'ru_annotation' => $ruAnnotation,
-            'ua_annotation' => $uaAnnotation,
-            'us_annotation' => $usAnnotation,
-            'ru_tag'        => $ruTag,
-            'ua_tag'        => $uaTag,
-            'us_tag'        => $usTag,
-            'top_anotation' => $tagData['topAnnotation']['text'],
-            'top_tag'       => $tagData['topAnnotation']['tag'],
-            'material_html' => ''
+            'udk'               => $udk,
+            'author'            => $nameAuthors,
+            'university'        => $university,
+            'email'             => $email,
+            'material_name'     => $materialName,
+            'ru_annotation'     => $ruAnnotation,
+            'ua_annotation'     => $uaAnnotation,
+            'us_annotation'     => $usAnnotation,
+            'ru_tag'            => $ruTag,
+            'ua_tag'            => $uaTag,
+            'us_tag'            => $usTag,
+            'top_anotation'     => $tagData['topAnnotation']['text'],
+            'second_annotation' => $tagData['secondAnnotation']['text'] ? $tagData['secondAnnotation']['text'] : '',
+            'last_annotation'   => $tagData['lastAnnotation']['text'] ? $tagData['lastAnnotation']['text'] : '',
+            'top_tag'           => $tagData['topAnnotation']['tag'],
+            'second_tag'        => $tagData['secondAnnotation']['tag'] ? $tagData['secondAnnotation']['tag'] : '',
+            'last_tag'          => $tagData['lastAnnotation']['tag'] ? $tagData['lastAnnotation']['tag'] : '',
         ];
 
         foreach ($parsingData as $key => $value) {
@@ -881,68 +891,6 @@ class ParsingController extends Controller
             $parsingData[$key] = str_replace("\n", " ", $value);
         }
 
-        $parsingData['material_html'] = self::getHtmlForMaterial($email, $udk, $nameAuthors, $university,$materialName, $tagData, $model);
-
-        $parsingData['material_html'] = str_replace("\n", " ", $parsingData['material_html']);
-
         return $parsingData;
-    }
-
-
-    /**
-     * Generating html for the material preview page
-     * @param $email
-     * @param $udk
-     * @param $nameAuthors
-     * @param $university
-     * @param $materialName
-     * @param $tagData
-     * @param $model Material
-     * @return string
-     */
-    private static function getHtmlForMaterial($email, $udk, $nameAuthors, $university, $materialName, $tagData, $model)
-    {
-        $materialHtml =
-            '<p>' .
-            $udk.'<br>'.
-            $nameAuthors.'<br>'.
-            $university.'<br>'.
-            'Е-mail: '.$model->getEmailHtml($email).
-            '</p>'.
-            '<p>'.
-            '<strong>'.$materialName.'</strong>'.
-            '<br>'.
-            '<br>'.
-            $tagData['topAnnotation']['text'].
-            '</p>'.
-            '<p>'.
-            '<br>'.
-            $tagData['topAnnotation']['tag'].
-            '</p>';
-
-        if (isset($tagData['secondAnnotation']['text']))
-            $materialHtml .=
-                '<hr>'.
-                '<p>'.
-                $tagData['secondAnnotation']['text'].
-                '</p>'.
-                '<p>'.
-                '<br>'.
-                $tagData['secondAnnotation']['tag'].
-                '</p>';
-
-        if (isset($tagData['lastAnnotation']['text']))
-            $materialHtml .=
-                '<hr>'.
-                '<p>'.
-                $tagData['lastAnnotation']['text'].
-                '</p>'.
-                '<p>'.
-                '<br>'.
-                $tagData['lastAnnotation']['tag'].
-                '</p>';
-
-        return $materialHtml;
-
     }
 }

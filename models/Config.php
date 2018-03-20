@@ -130,7 +130,7 @@ class Config extends \yii\db\ActiveRecord
 
                 $arr = array_diff($arr, ['']);
                 if (count($arr) != 3) {
-                    Yii::$app->getSession()->setFlash('error', 'Неправильно вказано значення формату');
+                    Yii::$app->getSession()->setFlash('error', 'Неправильно вказано значення');
                     return false;
                 }
                 $data['hostname'] = trim($arr[0]);

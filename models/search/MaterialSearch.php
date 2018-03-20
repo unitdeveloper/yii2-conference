@@ -53,6 +53,7 @@ class MaterialSearch extends Material
             'sort' => [
                 'defaultOrder' => ['created_at' => SORT_DESC],
                 'attributes' => [
+                    'id',
                     'material_name',
                     'author',
                     'category_id' => [

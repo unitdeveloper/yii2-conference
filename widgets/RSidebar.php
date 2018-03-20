@@ -2,8 +2,8 @@
 namespace app\widgets;
 
 use app\models\Archive;
+use app\models\Material;
 use yii\base\Widget;
-use yii\helpers\Html;
 
 class RSidebar extends Widget
 {
@@ -18,10 +18,13 @@ class RSidebar extends Widget
      */
     public function run()
     {
-        $archive = Archive::find()->orderBy('id DESC')->one();
+        $archive = Archive::find()->orderBy('id DESC')->active()->limit(2)->all();
 
-        return $this->renderFile(\Yii::getAlias('@app').'/views/site/rightSidebar.php', [
-            'archive' => $archive
+        $tags = Material::getRandomTags();
+
+        return $this->renderFile(\Yii::getAlias('@app').'/views/widgets/rightSidebar.php', [
+            'archive' => $archive,
+            'tags' => $tags,
         ]);
     }
 }

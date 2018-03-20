@@ -39,11 +39,20 @@ $this->params['breadcrumbs'][] = $this->title;
                 <?= Html::a('Conversion | Parsing', ['parsing', 'id' => $model->id], ['class' => 'btn btn-dark']) ?>
                 <?= Html::a('Conversion', ['conversion', 'id' => $model->id], ['class' => 'btn btn-dark']) ?>
             </div>
+
+            <div class="btn-group mr-5" role="group" aria-label="Last group">
+                <?php if ($model->participant_id) : ?>
+                    <?= Html::a('View Sender', ['/admin/participant/view', 'id' => $model->participant_id], ['class' => 'btn btn-default']) ?>
+                <?php endif; ?>
+                    <?= Html::a('View Directory', ['view-directory', 'id' => $model->id], ['class' => 'btn btn-default']) ?>
+            </div>
+
             <?php if ($model->participant_id) : ?>
             <div class="btn-group mr-5" role="group" aria-label="Last group">
-                <?= Html::a('View Sender', ['/admin/participant/view', 'id' => $model->participant_id], ['class' => 'btn btn-default']) ?>
+                <?= Html::a('Send email to owner this material ', ['/admin/participant/send-email', 'id' => $model->participant_id], ['class' => 'btn btn-success']) ?>
             </div>
             <?php endif; ?>
+
         </div>
     </p>
     <?= DetailView::widget([
@@ -67,15 +76,19 @@ $this->params['breadcrumbs'][] = $this->title;
             'university',
             'emailHtml:html',
             'material_name',
-            'ru_annotation:html',
-            'ru_tag:html',
-            'ua_annotation:html',
-            'ua_tag:html',
-            'us_annotation:html',
-            'us_tag:html',
+//            'ru_annotation:html',
+//            'ru_tag:html',
+//            'ua_annotation:html',
+//            'ua_tag:html',
+//            'us_annotation:html',
+//            'us_tag:html',
             'top_anotation:html',
             'top_tag:html',
-            'material_html:html',
+            'second_annotation:html',
+            'second_tag:html',
+            'last_annotation:html',
+            'last_tag:html',
+//            'material_html:html',
             'status_publisher:boolean',
             'dir',
             'word_file',

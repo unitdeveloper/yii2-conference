@@ -1,35 +1,39 @@
 <?php
 
 /* @var $this yii\web\View */
+/* @var $fragment app\models\Fragment */
 
 $this->title = Yii::$app->name;
 ?>
 
-<main id="content" role="main" class="span9">
-    <!-- Begin Content -->
+<!-- Blog Entries Column -->
+<div class="col-md-8">
 
-    <div id="system-message-container">
+    <div class="head blog-title mt-4 bg-dark">
+    <h3 class="">Актуальні проблеми автоматизації та управліня</h3>
+    <small class="lead my-3 f-roboto-c">Міжнародна науково-практична інтернет-коференція молодих учених та студентів</small>
     </div>
+<!--    <div class="head mt-4">-->
+<!--        <img src="http://av.lntu.edu.ua/images/logo_av.jpg" class="img-fluid" alt="">-->
+<!--    </div>-->
+    <?php if($fragment): ?>
+    <main class="my-3 white_body">
+        <div class="blog-main">
+            <h4 class="border-bottom pb-3">
+                <?= $fragment->header ?>
+            </h4>
 
-    <div class="item-page" itemscope itemtype="https://schema.org/Article">
-        <meta itemprop="inLanguage" content="uk-UA" />
+            <div class="blog-post">
 
-
-        <div itemprop="articleBody">
-            <?php if($fragment): ?>
-            <?=$fragment->content?>
-            <?php endif; ?>
-            <div class="attachmentsContainer">
-
-                <div class="attachmentsList" id="attachmentsList_com_content_default_77"></div>
-
+                <?= $fragment->content ?>
             </div>
+
         </div>
+        <!-- /.blog-main -->
+    </main>
+    <?php endif; ?>
+</div>
 
-
-    </div>
-
-</main>
-
+<!-- Sidebar Widgets Column -->
 <?=\app\widgets\RSidebar::widget()?>
 

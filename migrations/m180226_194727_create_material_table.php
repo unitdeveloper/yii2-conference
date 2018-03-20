@@ -41,8 +41,13 @@ class m180226_194727_create_material_table extends Migration
             'ua_tag' => $this->text(),
             'us_tag' => $this->text(),
 
-            'top_anotation' => $this->text(),
-            'top_tag'       => $this->text(),
+            'top_anotation'     => $this->text(),
+            'second_annotation' => $this->text(),
+            'last_annotation'   => $this->text(),
+
+            'top_tag'    => $this->text(),
+            'second_tag' => $this->text(),
+            'last_tag'   => $this->text(),
 
             'material_html' => $this->text(),
 
@@ -51,7 +56,7 @@ class m180226_194727_create_material_table extends Migration
             'dir' => $this->string()->notNull(),
 
             'word_file' => $this->string(),
-            'pdf_file' => $this->string(),
+            'pdf_file'  => $this->string(),
             'html_file' => $this->string(),
 
         ], $tableOptions);

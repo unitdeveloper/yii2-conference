@@ -20,24 +20,13 @@ class AppAsset extends AssetBundle
     public $basePath = '@webroot';
     public $baseUrl = '@web';
     public $css = [
-        'css/main/hotlogin.css',
-        'css/main/template.css',
-        'css/main/showtags.css',
-        'css/main/attachments_list.css',
+        'css/bootstrap.min.css',
+        'css/main/site.css',
     ];
     public $js = [
         'js/bootstrap.min.js',
-        'js/mootools-core.js',
-        'js/core.js',
-
-        'js/template.js',
-        'js/caption.js',
-        'js/html5fallback.js',
-        'js/jquery-migrate.min.js',
-        'js/jquery-noconflict.js',
-        'js/hotlogin.js',
-//        'js/punycode.js',
-//        'js/validate.js',
+        'js/jquery.cookie.js',
+        'js/main.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',

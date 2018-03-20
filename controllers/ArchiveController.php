@@ -25,12 +25,14 @@ class ArchiveController extends SiteController
     /**
      * Viewing a document PDP
      * @param $id
-     * @return $this
+     * @return \yii\console\Response|\yii\web\Response
      * @throws HttpException
      */
     public function actionViewPdf($id)
     {
         $archive = Archive::find()->where(['=', 'id', $id])->active()->one();
+        if (!$archive)
+            throw new HttpException(404, 'Pdf файла не существует');
         $filePath = \Yii::getAlias('@webroot').'/archive/pdf/'.$archive->pdf_file;
         if (file_exists($filePath)) {
             $info          = new \SplFileInfo($filePath);

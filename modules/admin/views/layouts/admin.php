@@ -46,7 +46,7 @@ $this->registerJsFile('/js/jquery.min.js', ['position' => \yii\web\View::POS_HEA
                 <!-- menu prile quick info -->
                 <div class="profile">
                     <div class="profile_pic">
-                        <img src="/img/admin/default.png" alt="..." class="img-circle profile_img">
+                        <img src="/default-resources/img/default.png" alt="..." class="img-circle profile_img">
                     </div>
                     <div class="profile_info">
                         <span>Welcome,</span>
@@ -62,110 +62,65 @@ $this->registerJsFile('/js/jquery.min.js', ['position' => \yii\web\View::POS_HEA
 
                     <div class="menu_section">
                         <h3>General</h3>
-                        <?=
-                        \yiister\gentelella\widgets\Menu::widget(
-                            [
-                                "items" => [
-                                    ["label" => "Site", "url" => "/", "icon" => "home"],
-                                    ["label" => "Admin Panel", "url" => "/admin", "icon" => "home"],
-                                    [
-                                        "label" => "CRUD",
-                                        "url" => "#",
-                                        "icon" => "table",
-                                        "items" => [
-                                            [
-                                                "label" => "Participant",
-                                                "url" => "/admin/participant",
-                                            ],
-                                            [
-                                                "label" => "Fragment",
-                                                "url" => "/admin/fragment",
-                                            ],
-                                            [
-                                                "label" => "Conference",
-                                                "url" => "/admin/conference",
-                                            ],
-                                            [
-                                                "label" => "Category",
-                                                "url" => "/admin/category",
-                                            ],
-                                            [
-                                                "label" => "Material",
-                                                "url" => "/admin/material",
-                                            ],
-                                            [
-                                                "label" => "Archive",
-                                                "url" => "/admin/archive",
-                                            ],
-                                            [
-                                                "label" => "Config",
-                                                "url" => "/admin/config",
+                        <?php
+                        try {
+                            echo \yiister\gentelella\widgets\Menu::widget(
+                                [
+                                    "items" => [
+                                        ["label" => "Site", "url" => "/", "icon" => "home"],
+                                        ["label" => "Admin Panel", "url" => "/admin", "icon" => "home"],
+                                        [
+                                            "label" => "CRUD",
+                                            "url" => "#",
+                                            "icon" => "table",
+                                            "items" => [
+                                                [
+                                                    "label" => "Participant",
+                                                    "url" => "/admin/participant",
+                                                ],
+                                                [
+                                                    "label" => "Fragment",
+                                                    "url" => "/admin/fragment",
+                                                ],
+                                                [
+                                                    "label" => "Conference",
+                                                    "url" => "/admin/conference",
+                                                ],
+                                                [
+                                                    "label" => "Category",
+                                                    "url" => "/admin/category",
+                                                ],
+                                                [
+                                                    "label" => "Material",
+                                                    "url" => "/admin/material",
+                                                ],
+                                                [
+                                                    "label" => "Archive",
+                                                    "url" => "/admin/archive",
+                                                ],
+                                                [
+                                                    "label" => "Config",
+                                                    "url" => "/admin/config",
+                                                ],
+                                                [
+                                                    "label" => "Mail Template",
+                                                    "url" => "/admin/mail-template",
+                                                ],
+                                                [
+                                                    "label" => "Application",
+                                                    "url" => "/admin/application",
+                                                ],
+                                                [
+                                                    "label" => "Letter",
+                                                    "url" => "/admin/letter",
+                                                ],
                                             ],
                                         ],
                                     ],
-//                                    ["label" => "Layout", "url" => ["site/layout"], "icon" => "files-o"],
-//                                    ["label" => "Error page", "url" => ["site/error-page"], "icon" => "close"],
-//                                    [
-//                                        "label" => "Widgets",
-//                                        "icon" => "th",
-//                                        "url" => "#",
-//                                        "items" => [
-//                                            ["label" => "Menu", "url" => ["site/menu"]],
-//                                            ["label" => "Panel", "url" => ["site/panel"]],
-//                                        ],
-//                                    ],
-//                                    [
-//                                        "label" => "Badges",
-//                                        "url" => "#",
-//                                        "icon" => "table",
-//                                        "items" => [
-//                                            [
-//                                                "label" => "Default",
-//                                                "url" => "#",
-//                                                "badge" => "123",
-//                                            ],
-//                                            [
-//                                                "label" => "Success",
-//                                                "url" => "#",
-//                                                "badge" => "new",
-//                                                "badgeOptions" => ["class" => "label-success"],
-//                                            ],
-//                                            [
-//                                                "label" => "Danger",
-//                                                "url" => "#",
-//                                                "badge" => "!",
-//                                                "badgeOptions" => ["class" => "label-danger"],
-//                                            ],
-//                                        ],
-//                                    ],
-//                                    [
-//                                        "label" => "Multilevel",
-//                                        "url" => "#",
-//                                        "icon" => "table",
-//                                        "items" => [
-//                                            [
-//                                                "label" => "Second level 1",
-//                                                "url" => "#",
-//                                            ],
-//                                            [
-//                                                "label" => "Second level 2",
-//                                                "url" => "#",
-//                                                "items" => [
-//                                                    [
-//                                                        "label" => "Third level 1",
-//                                                        "url" => "#",
-//                                                    ],
-//                                                    [
-//                                                        "label" => "Third level 2",
-//                                                        "url" => "#",
-//                                                    ],
-//                                                ],
-//                                            ],
-//                                        ],
-//                                    ],
-                                ],
-                            ]
-                        )
+                                ]
+                            );
+                        } catch (Exception $e) {
+                        }
                         ?>
                     </div>
 
@@ -207,24 +162,10 @@ $this->registerJsFile('/js/jquery.min.js', ['position' => \yii\web\View::POS_HEA
                                 <span class=" fa fa-angle-down"></span>
                             </a>
                             <ul class="dropdown-menu dropdown-usermenu pull-right">
-<!--                                <li><a href="javascript:;">  Profile</a>-->
-<!--                                </li>-->
-<!--                                <li>-->
-<!--                                    <a href="javascript:;">-->
-<!--                                        <span class="badge bg-red pull-right">50%</span>-->
-<!--                                        <span>Settings</span>-->
-<!--                                    </a>-->
-<!--                                </li>-->
-<!--                                <li>-->
-<!--                                    <a href="javascript:;">Help</a>-->
-<!--                                </li>-->
                                 <li><a href="<?=\yii\helpers\Url::to(['/auth/logout'])?>"><i class="fa fa-sign-out pull-right"></i> Log Out</a>
                                 </li>
                             </ul>
                         </li>
-
-
-
                     </ul>
                 </nav>
             </div>

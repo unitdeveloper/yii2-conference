@@ -17,13 +17,13 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'id') ?>
 
-    <?= $form->field($model, 'category_id') ?>
-
-    <?= $form->field($model, 'created_at') ?>
-
-    <?= $form->field($model, 'updated_at') ?>
-
-    <?= $form->field($model, 'publisher_at') ?>
+<!--    --><?//= $form->field($model, 'category_id') ?>
+<!---->
+<!--    --><?//= $form->field($model, 'created_at') ?>
+<!---->
+<!--    --><?//= $form->field($model, 'updated_at') ?>
+<!---->
+<!--    --><?//= $form->field($model, 'publisher_at') ?>
 
     <?php // echo $form->field($model, 'udk') ?>
 

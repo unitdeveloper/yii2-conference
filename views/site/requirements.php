@@ -1,31 +1,37 @@
+<?php
 
-<main id="content" role="main" class="span9">
-    <!-- Begin Content -->
+/* @var $this yii\web\View */
+/* @var $requirementsFragment app\models\Fragment */
+/* @var $copyrightFragment app\models\Fragment */
 
-    <div class="item-page" itemscope itemtype="https://schema.org/Article">
-        <meta itemprop="inLanguage" content="uk-UA" />
+$this->title = Yii::$app->name;
+?>
 
-
-        <div itemprop="articleBody">
-            <?php if($requirementsFragment): ?>
-            <h2 itemprop="headline"><?=$requirementsFragment->header?></h2>
-            <?=$requirementsFragment->content?>
-            <?php endif; ?>
-
-            <?php if($copyrightFragment): ?>
-            <h2 itemprop="headline"><?=$copyrightFragment->header?></h2>
-            <?=$copyrightFragment->content?>
-            <?php endif; ?>
-            <div class="attachmentsContainer">
-
-                <div class="attachmentsList" id="attachmentsList_com_content_default_77"></div>
-
+<!-- Blog Entries Column -->
+<div class="col-md-8">
+    <?php if($requirementsFragment): ?>
+        <div class="my-3 mt-4 white_body material-item">
+            <h4 class="border-bottom pb-3">
+                <?=$requirementsFragment->header?>
+            </h4>
+            <div class="participant-table mt-4">
+                <?=$requirementsFragment->content?>
             </div>
         </div>
+    <?php endif; ?>
 
+    <?php if($copyrightFragment): ?>
+        <div class="my-3 white_body material-item">
+            <h4 class="border-bottom pb-3">
+                <?=$copyrightFragment->header?>
+            </h4>
+            <div class="participant-table mt-4">
+                <?=$copyrightFragment->content?>
+            </div>
+        </div>
+    <?php endif; ?>
 
-    </div>
+</div>
 
-</main>
 
 <?=\app\widgets\RSidebar::widget()?>

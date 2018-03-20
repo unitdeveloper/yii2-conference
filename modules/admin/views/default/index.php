@@ -9,30 +9,35 @@ $this->title = 'Admin Panel';
 <?= \yiister\gentelella\widgets\FlashAlert::widget(['showHeader' => true]) ?>
 
 <div class="row">
-    <div class="col-xs-12 col-md-3">
-        <?=
-        \yiister\gentelella\widgets\StatsTile::widget(
-            [
-                'icon' => 'users',
-                'header' => 'Users',
-                'text' => 'Count of registered users',
-                'number' => $countUsers,
-            ]
-        )
-        ?>
-    </div>
+    <a href="<?=\yii\helpers\Url::to(['/admin/application/index'])?>">
     <div class="col-xs-12 col-md-3">
         <?=
         \yiister\gentelella\widgets\StatsTile::widget(
             [
                 'icon' => 'envelope',
-                'header' => 'Emails',
-                'text' => 'New emails detected',
-                'number' => $countNewEmail,
+                'header' => 'Application',
+                'text' => 'New Application',
+                'number' => $countNewApplication,
             ]
         )
         ?>
     </div>
+    </a>
+    <a href="<?=\yii\helpers\Url::to(['/admin/letter/index'])?>">
+    <div class="col-xs-12 col-md-3">
+        <?=
+        \yiister\gentelella\widgets\StatsTile::widget(
+            [
+                'icon' => 'envelope',
+                'header' => 'Letter',
+                'text' => 'New Letter',
+                'number' => $countNewLetter,
+            ]
+        )
+        ?>
+    </div>
+    </a>
+    <a href="<?=\yii\helpers\Url::to(['/admin/material/index'])?>">
     <div class="col-xs-12 col-md-3">
         <?=
         \yiister\gentelella\widgets\StatsTile::widget(
@@ -45,6 +50,8 @@ $this->title = 'Admin Panel';
         )
         ?>
     </div>
+    </a>
+    <a href="<?=\yii\helpers\Url::to(['/admin/participant/index'])?>">
     <div class="col-xs-12 col-md-3">
         <?=
         \yiister\gentelella\widgets\StatsTile::widget(
@@ -57,6 +64,7 @@ $this->title = 'Admin Panel';
         )
         ?>
     </div>
+    </a>
 </div>
 
 <!--<div class="row tile_count">-->

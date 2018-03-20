@@ -12,8 +12,6 @@ use yii\widgets\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'param')->textInput(['maxlength' => true]) ?>
-
     <?php if (!$model->type || $model->type == 'string'): ?>
         <?= $form->field($model, 'value')->textInput(['maxlength' => true, 'placeholder'=>$model->default]) ?>
     <?php elseif ($model->type == 'text'): ?>
@@ -23,12 +21,6 @@ use yii\widgets\ActiveForm;
     <?php elseif ($model->type == 'array'): ?>
         <?= $form->field($model, 'value')->textarea(['rows' => 2, 'placeholder'=>$model->default, 'value' =>$model->getValueToStr()]); ?>
     <?php endif; ?>
-
-    <?= $form->field($model, 'default')->textarea(['rows' => 6]) ?>
-
-    <?= $form->field($model, 'label')->textInput(['maxlength' => true]) ?>
-
-    <?= $form->field($model, 'type')->textInput(['maxlength' => true]) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Save', ['class' => 'btn btn-success']) ?>

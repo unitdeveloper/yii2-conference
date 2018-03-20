@@ -4,8 +4,11 @@ namespace app\modules\admin\controllers;
 
 
 
+use app\models\Letter;
 use app\models\Material;
 use app\models\Participant;
+use yii\db\Exception;
+use yii\helpers\Html;
 
 class EmailController
 {
@@ -67,7 +70,9 @@ class EmailController
     public function getInformationAboutSender($inbox, $emailNumber)
     {
         try {
-            $message = imap_fetchbody($inbox, $emailNumber, 2);
+            $message = imap_fetchbody($inbox, $emailNumber, 1.2);
+            if (trim($message) == '')
+                $message = imap_fetchbody($inbox, $emailNumber, 1);
             $header = imap_headerinfo($inbox, $emailNumber);
             $senderEmail = $header->from[0]->mailbox . "@" . $header->from[0]->host;
             $senderName = $header->from[0]->personal;
@@ -76,7 +81,7 @@ class EmailController
             return false;
         }
 
-        return ['email' => $senderEmail, 'name' => $senderName];
+        return ['email' => $senderEmail, 'name' => $senderName, 'message' => $message];
     }
 
     /**
@@ -109,7 +114,7 @@ class EmailController
         $material->participant_id = $participantId;
 
         if ($material->save())
-            return true;
+            return $material->id;
         \Yii::$app->getSession()->setFlash('error', "Не вдалося створити матеріл листа від ".$dataSender['email']);
         return false;
     }
@@ -136,6 +141,26 @@ class EmailController
     }
 
     /**
+     * @param $participantId
+     * @param $materialId
+     * @param $dataSender
+     * @return bool
+     */
+    public function createNewLetter($participantId, $dataSender, $materialId = null)
+    {
+        $letter = new Letter();
+        $letter->participant_id = $participantId;
+        $letter->material_id    = $materialId;
+        $letter->message        = $dataSender['message'];
+
+        if (!$letter->save()) {
+            \Yii::$app->getSession()->setFlash('error', "Не вдалося створити модель листа від ".$dataSender['email']);
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * @param $newEmails
      * @return bool
      */
@@ -143,7 +168,7 @@ class EmailController
     {
         if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'])) {
 
-            \Yii::$app->getSession()->setFlash('error', "Директорії attachments не існує");
+            \Yii::$app->getSession()->setFlash('error', "Директорії /attachments не існує");
             return false;
         }
 
@@ -167,14 +192,25 @@ class EmailController
 
                 if (!$dir = $this->createFile($emailStructure, $inbox, $emailNumber, $dataSender)) {
 
-                    imap_close($inbox);
-                    return false;
+                    if (!$participantId = $this->createNewParticipant($dataSender))
+                        return false;
+
+                    if (!$letter = $this->createNewLetter($participantId, $dataSender))
+                        return false;
+
+                } else {
+
+                    if (!$participantId = $this->createNewParticipant($dataSender))
+                        return false;
+
+                    if (!$materialId = $this->createNewMaterial($dir, $participantId, $dataSender))
+                        return false;
+
+                    if (!$letter = $this->createNewLetter($participantId, $dataSender, $materialId))
+                        return false;
                 }
 
-                if (!$participantId = $this->createNewParticipant($dataSender))
-                    return false;
-
-                if (!$this->createNewMaterial($dir, $participantId, $dataSender))
+                if (!$this->setFalg($inbox, $emailNumber, "\\Seen \\Flagged"))
                     return false;
 
                 if($count++ >= $this->emailReadingLimit) break;
@@ -186,6 +222,16 @@ class EmailController
             return true;
         }
         \Yii::$app->getSession()->setFlash('error', 'Не знайдено нових листів');
+        return false;
+    }
+
+
+    public function setFalg($inbox, $emailNumber, $flag)
+    {
+        if (imap_setflag_full($inbox, $emailNumber, $flag))
+            return true;
+
+        \Yii::$app->getSession()->setFlash('error', "Не вдалося выдмітити лист $emailNumber як прочитаний");
         return false;
     }
 

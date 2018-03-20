@@ -2,25 +2,16 @@
 
 namespace app\controllers;
 
-use app\models\Archive;
-use app\models\EmailConfirmForm;
 use app\models\Fragment;
-use app\models\PasswordResetRequestForm;
-use app\models\ResetPasswordForm;
-use app\models\SignupForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
-use yii\web\Response;
-use yii\filters\VerbFilter;
-use app\models\LoginForm;
-use app\models\ContactForm;
+use app\models\form\ContactForm;
 
 
 class SiteController extends Controller
 {
-//    public $layout = 'rightSidebar';
     /**
      * @inheritdoc
      */
@@ -60,7 +51,8 @@ class SiteController extends Controller
         return [
             'error' => [
                 'class' => 'yii\web\ErrorAction',
-                'view' => '@yiister/gentelella/views/error',
+//                'view' => '@yiister/gentelella/views/error',
+                'view' => '@app/views/site/error',
             ],
             'captcha' => [
                 'class' => 'yii\captcha\CaptchaAction',
@@ -121,6 +113,24 @@ class SiteController extends Controller
 
         return $this->render('outputData',[
             'fragment' => $fragment,
+        ]);
+    }
+
+    public function actionContact()
+    {
+        $model = new ContactForm();
+
+        if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
+
+            if ($result = $model->send()) {
+                Yii::$app->session->setFlash('success', 'Ваше повідомлення відправлено.');
+            } else {
+                Yii::$app->session->setFlash('error', 'Ваше повідомлення не вдалося відправити.');
+            }
+        }
+
+        return $this->render('contact', [
+            'model' => $model,
         ]);
     }
 

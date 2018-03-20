@@ -4,6 +4,7 @@ namespace app\models;
 
 use app\models\job\RemoveMaterialDirJob;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * This is the model class for table "{{%category}}".

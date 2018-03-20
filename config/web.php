@@ -18,6 +18,18 @@ $config = [
         '@yiister/gentelella/assets/src' => __DIR__.'/../vendor/yiister/yii2-gentelella/assets/src',
     ],
     'components' => [
+        'sendGrid' => [
+            'class' => 'bryglen\sendgrid\Mailer',
+            'username' => Config::env('SEND_GRID_USER_NAME', 'key'),
+            'password' => Config::env('SEND_GRID_PASSWORD', 'key'),
+            'viewPath' => '@app/mail',
+        ],
+        'reCaptcha' => [
+            'name' => 'reCaptcha',
+            'class' => 'himiklab\yii2\recaptcha\ReCaptcha',
+            'siteKey' => Config::env('RECAPTCHA_SITE_KEY', 'key'),
+            'secret' => Config::env('RECAPTCHA_SECRET_KEY', 'secretKey'),
+        ],
         'redis' => [
             'class' => 'yii\redis\Connection',
             'hostname' => 'localhost',
@@ -31,6 +43,9 @@ $config = [
         ],
         'converter'=>[
             'class' => 'app\components\Converter'
+        ],
+        'bootstrapLinkPager'=>[
+            'class' => 'app\components\BootstrapLinkPager'
         ],
         'config'=>[
             'class' => 'app\components\DConfig'

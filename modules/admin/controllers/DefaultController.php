@@ -2,8 +2,11 @@
 
 namespace app\modules\admin\controllers;
 
+use app\models\Application;
 use app\models\form\MailingForm;
 use app\models\job\MassSendMailJob;
+use app\models\Letter;
+use app\models\MailTemplate;
 use app\models\Material;
 use app\models\Participant;
 use app\models\User;
@@ -22,26 +25,6 @@ use yii\web\UploadedFile;
 class DefaultController extends Controller
 {
     /**
-     * DefaultController constructor.
-     * @param $id
-     * @param Module $module
-     * @param array $config
-     */
-    public function __construct($id, Module $module, array $config = [])
-    {
-        $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'];
-        if (!file_exists($dir)) {
-
-            try {
-                FileHelper::createDirectory($dir);
-            } catch (Exception $exception) {
-                return $exception;
-            }
-        }
-        parent::__construct($id, $module, $config);
-    }
-
-    /**
      * Renders the index view for the module
      * @return string
      */
@@ -50,18 +33,18 @@ class DefaultController extends Controller
 
         $email     = new EmailController();
         $newEmails = $email->searchNewEmails();
-        !$newEmails ? $newEmails = null : $newEmails;
 
-        $users = User::find()->where(['=', 'status', 1])->all();
-
-        $countUnpublishedMaterial = Material::find()->where(['=', 'status_publisher', 0])->all();
-        $countParticipant = Participant::find()->all();
+        $countUnpublishedMaterial = Material::find()->where(['=', 'status_publisher', 0])->count();
+        $countParticipant = Participant::find()->count();
+        $countNewApplication = Application::find()->where(['=', 'status', 0])->count();
+        $countNewLetter = Letter::find()->where(['=', 'status', 0])->count();
 
         return $this->render('index',[
-            'countNewEmail' => count($newEmails),
-            'countUsers' => count($users),
-            'countUnpublishedMaterial' => count($countUnpublishedMaterial),
-            'countParticipant' => count($countParticipant),
+            'countNewEmail' => $newEmails ? count($newEmails) : 0,
+            'countUnpublishedMaterial' => $countUnpublishedMaterial,
+            'countParticipant' => $countParticipant,
+            'countNewApplication' => $countNewApplication,
+            'countNewLetter' => $countNewLetter,
         ]);
     }
 
@@ -69,7 +52,7 @@ class DefaultController extends Controller
     /**
      * Saving editor files to a $sub directory
      * @param string $sub
-     * @return array
+     * @return array|\Exception|Exception
      * @throws BadRequestHttpException
      */
     public function actionSaveRedactorFile($sub='main')
@@ -129,7 +112,7 @@ class DefaultController extends Controller
     /**
      * Saving images of the editor to the directory $sub
      * @param string $sub
-     * @return array
+     * @return array|\Exception|Exception
      * @throws BadRequestHttpException
      */
     public function actionSaveRedactorImg($sub='main')
@@ -204,38 +187,40 @@ class DefaultController extends Controller
         return $this->redirect(['index']);
     }
 
+    public function actionMailTemplate($path = null)
+    {
+        $model = MailTemplate::find()->all();
+
+        $params = \Yii::$app->getRequest()->get();
+        unset($params['path']);
+
+        return $this->render('mail-template', [
+            'model' => $model,
+            'path' => $path,
+            'params' => $params,
+        ]);
+    }
+
     /**
      * Mailing for a participants conference
      * @return string|Response
      */
-    public function actionMailing()
+    public function actionMailing($id_template = null)
     {
         $model = new MailingForm();
 
-        if ($model->load(\Yii::$app->request->post())) {
-
-            $participant = Participant::find()->all();
-            if (count($participant) == 0) {
-
-                \Yii::$app->getSession()->setFlash('success', 'Не знайдено учасників конфренції');
-                return $this->redirect('index');
-            }
-            if(\Yii::$app->queue->push(new MassSendMailJob([
-                'mailingData' => $model,
-                'participant' => $participant,
-            ]))) {
-                \Yii::$app->getSession()->setFlash('success', 'Почалася розсилка листів');
-            } else {
-
-                \Yii::$app->getSession()->setFlash('error', 'Не вдалося розіслати листи');
-            }
-
+        if ($model->load(\Yii::$app->request->post()) && $model->validate() && $model->send()) {
             return $this->redirect('index');
-        } else {
-            return $this->render('mailing', [
-                'model' => $model,
-            ]);
         }
+
+        $query = Participant::find();
+        $template = MailTemplate::findOne($id_template);
+
+        return $this->render('mailing', [
+            'model' => $model,
+            'participantCount' => $query->count(),
+            'template' => $template,
+        ]);
     }
 
 }

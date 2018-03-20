@@ -14,84 +14,73 @@ $this->params['breadcrumbs'][] = $this->title;
 <div class="material-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
+
+    <?php try {
+        echo \yiister\gentelella\widgets\FlashAlert::widget(['showHeader' => true]);
+    } catch (Exception $e) {
+    } ?>
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
 
     <p>
         <?= Html::a('Create Material', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?= \yiister\gentelella\widgets\grid\GridView::widget([
-        'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
-        'hover' => true,
-        'columns' => [
-//            ['class' => 'yii\grid\SerialColumn'],
+    <?php try {
+        echo \yiister\gentelella\widgets\grid\GridView::widget([
+            'dataProvider' => $dataProvider,
+            'filterModel' => $searchModel,
+            'hover' => true,
+            'columns' => [
+                //            ['class' => 'yii\grid\SerialColumn'],
 
-//            'id',
-//            'material_name',
-            'author',
-            [
-                'attribute' => 'category_id',
-                'filter'    =>  \app\models\Category::find()->select(['name', 'id'])->indexBy('id')->column(),
-                'value'     => 'category.name'
-            ],
-            [
-                'attribute' => 'conference_id',
-                'filter'    =>  \app\models\Conference::find()->select(['name', 'id'])->indexBy('id')->column(),
-                'value'     => 'conference.name'
-            ],
-//            'category_id',
-            [
-                'attribute' => 'created_at',
-                'value'     => 'created_at',
-                'filter'    => DatePicker::widget([
+                'author',
+                [
+                    'attribute' => 'category_id',
+                    'filter' => \app\models\Category::find()->select(['name', 'id'])->indexBy('id')->column(),
+                    'value' => 'category.name'
+                ],
+                [
+                    'attribute' => 'conference_id',
+                    'filter' => \app\models\Conference::find()->select(['name', 'id'])->indexBy('id')->column(),
+                    'value' => 'conference.name'
+                ],
+                [
+                    'attribute' => 'created_at',
+                    'value' => 'created_at',
+                    'filter' => DatePicker::widget([
                         'model' => $searchModel,
                         'attribute' => 'created_at',
                         'template' => '{addon}{input}',
-                        'clientOptions'=>[
+                        'clientOptions' => [
                             'autoclose' => true,
                             'format' => 'yyyy-m-d',
                         ]
-                ]),
-                'format' => 'date',
-            ],
-//            'updated_at',
-//            'publisher_at',
-            [
-                'attribute' => 'publisher_at',
-                'value'     => 'publisher_at',
-                'filter'    => DatePicker::widget([
-                    'model' => $searchModel,
+                    ]),
+                    'format' => 'date',
+                ],
+                [
                     'attribute' => 'publisher_at',
-                    'template' => '{addon}{input}',
-                    'clientOptions' => [
-                        'autoclose' => true,
-                        'format' => 'yyyy-m-d'
-                    ],
-                ]),
-                'format' => 'date',
-            ],
+                    'value' => 'publisher_at',
+                    'filter' => DatePicker::widget([
+                        'model' => $searchModel,
+                        'attribute' => 'publisher_at',
+                        'template' => '{addon}{input}',
+                        'clientOptions' => [
+                            'autoclose' => true,
+                            'format' => 'yyyy-m-d'
+                        ],
+                    ]),
+                    'format' => 'date',
+                ],
+                [
+                    'attribute' => 'status_publisher',
+                    'filter' => [0 => 'Нет', 1 => 'Да'],
+                    'format' => 'boolean',
+                ],
 
-            //'university',
-            //'email:email',
-            //'material_name',
-            //'ru_annotation',
-            //'ua_annotation',
-            //'us_annotation',
-            //'ru_tag',
-            //'ua_tag',
-            //'us_tag',
-//            'status_publisher',
-            [
-                'attribute' => 'status_publisher',
-                'filter' => [0 => 'Нет', 1 => 'Да'],
-                'format' => 'boolean',
+                ['class' => 'yii\grid\ActionColumn'],
             ],
-            //'word_file',
-            //'pdf_file',
-            //'html_file',
-
-            ['class' => 'yii\grid\ActionColumn'],
-        ],
-    ]); ?>
+        ]);
+    } catch (Exception $e) {
+    } ?>
 </div>

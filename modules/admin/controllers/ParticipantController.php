@@ -2,6 +2,8 @@
 
 namespace app\modules\admin\controllers;
 
+use app\models\form\MailForParticipantForm;
+use app\models\MailTemplate;
 use Yii;
 use app\models\Participant;
 use app\models\search\ParticipantSearch;
@@ -108,6 +110,29 @@ class ParticipantController extends Controller
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+
+    /**
+     * @param $id
+     * @return string|\yii\web\Response
+     */
+    public function actionSendEmail($id, $id_template = null)
+    {
+        $model = new MailForParticipantForm();
+
+        if ($model->load(\Yii::$app->request->post()) && $model->send($id)) {
+            return $this->redirect(['view', 'id' => $id]);
+        }
+
+        $participant = Participant::findOne($id);
+        $template = MailTemplate::findOne($id_template);
+
+        return $this->render('mailForParticipant', [
+            'model' => $model,
+            'participant' => $participant,
+            'template' => $template,
+        ]);
+
     }
 
     /**

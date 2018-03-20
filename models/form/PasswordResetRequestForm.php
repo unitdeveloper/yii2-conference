@@ -28,10 +28,12 @@ class PasswordResetRequestForm extends Model
             ],
         ];
     }
+
     /**
      * Sends an email with a link, for resetting the password.
      *
      * @return bool whether the email was send
+     * @throws \yii\base\Exception
      */
     public function sendEmail()
     {
@@ -50,10 +52,21 @@ class PasswordResetRequestForm extends Model
                 return false;
             }
         }
-        return Yii::$app->mailer->compose('@app/mail/passwordReset', ['user' => $user])
-            ->setFrom([Yii::$app->config->get('SUPPORT_EMAIL') => Yii::$app->name . ' robot'])
-            ->setTo($this->email)
-            ->setSubject('Скидання пароля для ' . Yii::$app->name)
-            ->send();
+//        return Yii::$app->mailer->compose('@app/mail/passwordReset', ['user' => $user])
+//            ->setFrom([Yii::$app->config->get('SUPPORT_EMAIL') => Yii::$app->name . ' robot'])
+//            ->setTo($this->email)
+//            ->setSubject('Скидання пароля для ' . Yii::$app->name)
+//            ->send();
+        try {
+            $sendGrid = \Yii::$app->sendGrid;
+            $message = $sendGrid->compose('passwordReset', ['user' => $user]);
+            $message->setFrom([Yii::$app->config->get('SUPPORT_EMAIL') => Yii::$app->name . ' robot'])
+                ->setTo($this->email)
+                ->setSubject('Скидання пароля для ' . Yii::$app->name)
+                ->send($sendGrid);
+        } catch (\Exception $exception) {
+            return false;
+        }
+        return true;
     }
 }

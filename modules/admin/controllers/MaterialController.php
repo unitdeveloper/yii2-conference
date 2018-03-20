@@ -2,6 +2,8 @@
 
 namespace app\modules\admin\controllers;
 
+use app\models\form\MailForParticipantForm;
+use app\models\Participant;
 use app\modules\admin\Module;
 use Yii;
 use app\models\Material;
@@ -131,7 +133,7 @@ class MaterialController extends Controller
         if (!ParsingController::checkNeedleFile($model, $pathToWordFile))
             return $this->redirect(['view', 'id' => $model->id]);
 
-        Yii::$app->getSession()->setFlash('success', 'Файлы конвертированы');
+        Yii::$app->getSession()->setFlash('success', 'Файли конвертовані');
         return $this->redirect(['view', 'id' => $model->id]);
     }
 
@@ -159,11 +161,11 @@ class MaterialController extends Controller
             $model->save();
         } catch (\Exception $exception) {
 
-            Yii::$app->getSession()->setFlash('error', "Ошибка сохранение данных $exception");
+            Yii::$app->getSession()->setFlash('error', "Помилка збереження даних $exception");
             return false;
         }
 
-        Yii::$app->getSession()->setFlash('success', 'Данные получены и сохранены');
+        Yii::$app->getSession()->setFlash('success', 'Дані отримані і збережені');
         return true;
     }
 
@@ -220,7 +222,7 @@ class MaterialController extends Controller
 
     /**
      * @param $id
-     * @return $this
+     * @return \yii\console\Response|\yii\web\Response
      * @throws HttpException
      */
     public function actionViewPdf($id)
@@ -232,18 +234,32 @@ class MaterialController extends Controller
             $fileName = $info->getFilename();
             return \Yii::$app->response->sendFile($filePath, $fileName, ['inline'=>true]);
         }
-        throw new HttpException(404, 'Pdf файла не существует');
+        throw new HttpException(404, 'Pdf файла не існує');
+    }
+
+    /**
+     * @param $id
+     * @return string
+     * @throws NotFoundHttpException
+     */
+    public function actionViewDirectory($id)
+    {
+        $model = $this->findModel($id);
+
+        return $this->render('viewDirectory', [
+            'model' => $model,
+        ]);
     }
 
     /**
      * @param $resource
-     * @return $this
+     * @return MaterialController|\yii\console\Response|\yii\web\Response
      * @throws NotFoundHttpException
      */
     public function actionDownload($resource)
     {
         if (file_exists($resource))
             return Yii::$app->response->sendFile($resource);
-        throw new NotFoundHttpException("Файл $resource не найден");
+        throw new NotFoundHttpException("Файл $resource не знайдено");
     }
 }

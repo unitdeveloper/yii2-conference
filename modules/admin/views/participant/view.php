@@ -12,6 +12,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="participant-view">
 
+    <?= \yiister\gentelella\widgets\FlashAlert::widget(['showHeader' => true]) ?>
+
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
@@ -23,6 +25,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 'method' => 'post',
             ],
         ]) ?>
+
+        <?php if ($model->email) : ?>
+            <?= Html::a('Send email', ['send-email', 'id' => $model->id], ['class' => 'btn btn-success']) ?>
+        <?php endif; ?>
     </p>
 
     <?= DetailView::widget([

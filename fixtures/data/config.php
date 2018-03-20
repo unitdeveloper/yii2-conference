@@ -2,8 +2,15 @@
 
 return [
     [
+        'param' => 'ADMIN_EMAIL',
+        'value' => 'example@gmail.com',
+        'default' => 'example@gmail.com',
+        'label' => 'Admin Email',
+        'type' => 'string',
+    ],
+    [
         'param' => 'SUPPORT_EMAIL',
-        'value' => 'maxdenusenko@gmail.com',
+        'value' => 'example@gmail.com',
         'default' => 'example@gmail.com',
         'label' => 'Support Email',
         'type' => 'string',

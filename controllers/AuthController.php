@@ -6,6 +6,7 @@ use app\models\form\EmailConfirmForm;
 use app\models\form\LoginForm;
 use app\models\form\PasswordResetRequestForm;
 use app\models\form\ResetPasswordForm;
+use app\models\form\SignupConferenceForm;
 use app\models\form\SignupForm;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
@@ -49,6 +50,7 @@ class AuthController extends SiteController
 
     /**
      * @return string|Response
+     * @throws \yii\base\Exception
      */
     public function actionSignup()
     {
@@ -56,9 +58,11 @@ class AuthController extends SiteController
         $model = new SignupForm();
         if ($model->load(\Yii::$app->request->post())) {
             if ($user = $model->signup()) {
-                \Yii::$app->getSession()->setFlash('success', 'Подтвердите ваш электронный адрес.');
-                return $this->goHome();
+                \Yii::$app->session->setFlash('success', 'Підтвердіть вашу електронну адресу');
+            } else {
+                \Yii::$app->session->setFlash('error', 'Повідомлення не вдалося відправити');
             }
+            return $this->goHome();
         }
 
         return $this->render('signup', [
@@ -80,9 +84,9 @@ class AuthController extends SiteController
         }
 
         if ($model->confirmEmail()) {
-            \Yii::$app->getSession()->setFlash('success', 'Спасибо! Ваш Email успешно подтверждён.');
+            \Yii::$app->session->setFlash('success', 'Дякуємо! Ваш Email успішно підтверджений');
         } else {
-            \Yii::$app->getSession()->setFlash('error', 'Ошибка подтверждения Email.');
+            \Yii::$app->session->setFlash('error', 'Помилка підтвердження Email');
         }
 
         return $this->goHome();
@@ -90,6 +94,7 @@ class AuthController extends SiteController
 
     /**
      * @return string|Response
+     * @throws \yii\base\Exception
      */
     public function actionPasswordResetRequest()
     {
@@ -97,15 +102,27 @@ class AuthController extends SiteController
         $model = new PasswordResetRequestForm();
         if ($model->load(\Yii::$app->request->post()) && $model->validate()) {
             if ($model->sendEmail()) {
-                \Yii::$app->getSession()->setFlash('success', 'Спасибо! На ваш Email было отправлено письмо со ссылкой на восстановление пароля.');
-
-                return $this->goHome();
+                \Yii::$app->session->setFlash('success', 'Дякуємо! На ваш Email було відправлено лист з посиланням на відновлення пароля');
             } else {
-                \Yii::$app->getSession()->setFlash('error', 'Извините. У нас возникли проблемы с отправкой.');
+                \Yii::$app->session->setFlash('error', 'Вибачте. У нас виникли проблеми з відправкою');
             }
+            return $this->goHome();
         }
 
         return $this->render('passwordResetRequest', [
+            'model' => $model,
+        ]);
+    }
+
+    public function actionSignupConference()
+    {
+        $model = new SignupConferenceForm();
+
+        if ($model->load(\Yii::$app->request->post()) && $model->validate() && $model->signupConferense()) {
+            return $this->goHome();
+        }
+
+        return $this->render('signupConference', [
             'model' => $model,
         ]);
     }
@@ -124,7 +141,7 @@ class AuthController extends SiteController
         }
 
         if ($model->load(\Yii::$app->request->post()) && $model->validate() && $model->resetPassword()) {
-            \Yii::$app->getSession()->setFlash('success', 'Спасибо! Пароль успешно изменён.');
+            \Yii::$app->session->setFlash('success', 'Дякуємо! Пароль успішно змінено.');
 
             return $this->goHome();
         }

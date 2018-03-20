@@ -3,6 +3,7 @@
 namespace app\models\form;
 
 use app\models\User;
+use codemix\yii2confload\Config;
 use yii\base\Model;
 use Yii;
 
@@ -14,7 +15,9 @@ class SignupForm extends Model
     public $username;
     public $email;
     public $password;
+    public $rpPassword;
     public $verifyCode;
+    public $reCaptcha;
 
     public function rules()
     {
@@ -33,7 +36,12 @@ class SignupForm extends Model
             ['password', 'required'],
             ['password', 'string', 'min' => 6],
 
-            ['verifyCode', 'captcha', 'captchaAction' => '/site/captcha'],
+            ['rpPassword', 'required'],
+            ['rpPassword', 'string', 'min' => 6],
+            ['rpPassword', 'compare', 'compareAttribute' => 'password', 'message' => 'Паролі не співпадають'],
+
+            [['reCaptcha'], \himiklab\yii2\recaptcha\ReCaptchaValidator::className(), 'secret' => Config::env('RECAPTCHA_SECRET_KEY', 'secretKey'), 'uncheckedMessage' => 'Please confirm that you are not a bot.']
+//            ['verifyCode', 'captcha', 'captchaAction' => '/site/captcha'],
         ];
     }
 
@@ -42,15 +50,17 @@ class SignupForm extends Model
         return [
             'username' => 'Логін',
             'password' => 'Пароль',
+            'rpPassword' => 'Підтвердити пароль',
             'verifyCode' => 'Код перевірки',
         ];
     }
 
     /**
-    * Signs user up.
-    *
-    * @return User|null the saved model or null if saving fails
-    */
+     * Signs user up.
+     *
+     * @return User|null the saved model or null if saving fails
+     * @throws \yii\base\Exception
+     */
     public function signup()
     {
         if ($this->validate()) {
@@ -63,11 +73,18 @@ class SignupForm extends Model
             $user->generateEmailConfirmToken();
 
             if ($user->save()) {
-                Yii::$app->mailer->compose('@app/mail/emailConfirm', ['user' => $user])
-                    ->setFrom([Yii::$app->config->get('SUPPORT_EMAIL') => Yii::$app->name])
+//                Yii::$app->mailer->compose('@app/mail/emailConfirm', ['user' => $user])
+//                    ->setFrom([Yii::$app->config->get('SUPPORT_EMAIL') => Yii::$app->name])
+//                    ->setTo($this->email)
+//                    ->setSubject('Підтвердження електронної пошти для ' . Yii::$app->name)
+//                    ->send();
+
+                $sendGrid = \Yii::$app->sendGrid;
+                $message = $sendGrid->compose('emailConfirm', ['user' => $user]);
+                $message->setFrom([\Yii::$app->config->get('SUPPORT_EMAIL') => \Yii::$app->name])
                     ->setTo($this->email)
                     ->setSubject('Підтвердження електронної пошти для ' . Yii::$app->name)
-                    ->send();
+                    ->send($sendGrid);
                     return $user;
                 }
             }

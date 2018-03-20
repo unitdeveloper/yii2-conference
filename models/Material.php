@@ -31,7 +31,11 @@ use yii\web\UploadedFile;
  * @property string $ua_tag
  * @property string $us_tag
  * @property string $top_anotation
+ * @property string $second_annotation
+ * @property string $last_annotation
  * @property string $top_tag
+ * @property string $second_tag
+ * @property string $last_tag
  * @property string $material_html
  * @property int $status_publisher
  * @property string $dir
@@ -61,7 +65,7 @@ class Material extends \yii\db\ActiveRecord
             [['status_publisher', 'participant_id', 'category_id', 'conference_id'], 'integer'],
             [['created_at', 'updated_at', 'publisher_at'], 'date', 'format' => 'php:Y-m-d'],
             [['dir', 'udk', 'author', 'university', 'email', 'material_name', 'word_file', 'pdf_file', 'html_file'], 'string', 'max' => 255],
-            [['material_html', 'top_tag', 'top_anotation', 'ru_annotation', 'ua_annotation', 'us_annotation', 'ru_tag', 'ua_tag', 'us_tag',], 'string'],
+            [['material_html', 'second_tag', 'last_tag', 'top_tag', 'top_anotation', 'second_annotation', 'last_annotation', 'ru_annotation', 'ua_annotation', 'us_annotation', 'ru_tag', 'ua_tag', 'us_tag',], 'string'],
             [['category_id'], 'exist', 'skipOnError' => true, 'targetClass' => Category::className(), 'targetAttribute' => ['category_id' => 'id']],
             [['conference_id'], 'exist', 'skipOnError' => true, 'targetClass' => Conference::className(), 'targetAttribute' => ['conference_id' => 'id']],
             [['participant_id'], 'exist', 'skipOnError' => true, 'targetClass' => Participant::className(), 'targetAttribute' => ['participant_id' => 'id']],
@@ -102,6 +106,14 @@ class Material extends \yii\db\ActiveRecord
             'pdf_file' => 'Pdf file',
             'html_file' => 'Html file',
         ];
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getLetter()
+    {
+        return $this->hasOne(Letter::className(), ['material_id' => 'id']);
     }
 
     /**
@@ -168,24 +180,13 @@ class Material extends \yii\db\ActiveRecord
      * Forming html string for top tag material
      * @return string
      */
-    public function getTopTagHtml()
+    public function getTopTag()
     {
         $tagStr = trim(mb_substr(mb_stristr($this->top_tag, ':'), 1));
 
         $tagArr = explode(',', $tagStr);
 
-        $html = '';
-
-        foreach ($tagArr as $tag) {
-
-            $html .=
-                "<li>
-                    <a href=".Url::to(['/matherial/search', 'parameters' => $tag]).">$tag</a>
-                </li>"
-            ;
-        }
-
-        return $html;
+        return $tagArr;
 
     }
 
@@ -280,7 +281,7 @@ class Material extends \yii\db\ActiveRecord
                 try {
                     $this->dir = '/'.strtotime('now').'_'.\Yii::$app->getSecurity()->generateRandomString(4).'/';
                 } catch (Exception $exception) {
-                    return $exception;
+                    return false;
                 }
 
                 $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir;
@@ -288,7 +289,7 @@ class Material extends \yii\db\ActiveRecord
                     try {
                         FileHelper::createDirectory($dir);
                     } catch (\Exception $exception) {
-                        return $exception;
+                        return false;
                     }
                 }
             }
@@ -431,25 +432,37 @@ class Material extends \yii\db\ActiveRecord
     }
 
     /**
-     * Composing a request for material search
-     * @param $query
-     * @return object
+     * @return array
      */
-    public static function searchByQuery($query)
+    public static function getRandomTags()
     {
-        $response = Material::find()
-            ->where(['like', 'udk', $query])
-            ->orWhere(['like', 'author', $query])
-            ->orWhere(['like', 'university', $query])
-            ->orWhere(['like', 'email', $query])
-            ->orWhere(['like', 'material_name', $query])
-            ->orWhere(['like', 'ru_annotation', $query])
-            ->orWhere(['like', 'ua_annotation', $query])
-            ->orWhere(['like', 'us_annotation', $query])
-            ->orWhere(['like', 'ru_tag', $query])
-            ->orWhere(['like', 'ua_tag', $query])
-            ->orWhere(['like', 'us_tag', $query]);
+        $materials = self::find()->active()->orderBy('RAND()')->limit(10)->all();
+        $tags = '';
+        foreach ($materials as $material) {
 
-        return $response;
+            if ($material->top_tag) {
+
+                $tagStr = trim(mb_substr(mb_stristr($material->top_tag, ':'), 1));
+
+                $tagArr = explode(',', $tagStr);
+
+                $position = rand(0, count($tagArr)-1);
+
+                $word = trim($tagArr[$position]);
+
+                if (mb_strlen($word) < 25)
+                    $tags .= $word.',';
+            }
+        }
+        $arr = explode(',', $tags);
+        $arr = array_diff($arr, ['']);
+
+        foreach ($arr as $key => $value) {
+
+            $arr[$key] = str_replace("\n", "", $value);
+        }
+
+        return $arr;
     }
+
 }

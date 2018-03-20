@@ -32,7 +32,11 @@
         "html2text/html2text": "^4.1",
         "yiisoft/yii2-queue": "^2.0",
         "yiisoft/yii2-redis": "^2.0",
-        "codemix/yii2-configloader": "^0.9.1"
+        "codemix/yii2-configloader": "^0.9.1",
+        "borales/yii2-phone-input": "*",
+        "yii2mod/yii2-sweet-alert": "*",
+        "himiklab/yii2-recaptcha-widget": "*",
+        "bryglen/yii2-sendgrid": "*"
     },
     "require-dev": {
         "yiisoft/yii2-debug": "~2.0.0",

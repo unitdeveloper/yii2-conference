@@ -3,6 +3,7 @@
 namespace app\models\form;
 
 use app\models\User;
+use codemix\yii2confload\Config;
 use Yii;
 use yii\base\Model;
 
@@ -17,6 +18,7 @@ class LoginForm extends Model
     public $username;
     public $password;
     public $rememberMe = true;
+    public $reCaptcha;
 
     private $_user = false;
 
@@ -33,6 +35,8 @@ class LoginForm extends Model
             ['rememberMe', 'boolean'],
             // password is validated by validatePassword()
             ['password', 'validatePassword'],
+
+            [['reCaptcha'], \himiklab\yii2\recaptcha\ReCaptchaValidator::className(), 'secret' => Config::env('RECAPTCHA_SECRET_KEY', 'secretKey'), 'uncheckedMessage' => 'Please confirm that you are not a bot.']
         ];
     }
 

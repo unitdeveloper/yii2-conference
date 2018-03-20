@@ -44,54 +44,6 @@ if ($model->pdf_file != '')
     <hr>
     <hr>
 
-    <?= $form->field($model, 'ua_annotation')->widget(\vova07\imperavi\Widget::className(), [
-        'settings' => [
-            'lang' => 'ru',
-            'minHeight' => 80,
-            'plugins' => [
-                'clips',
-                'fullscreen',
-            ],
-        ],
-    ]);?>
-
-    <?= $form->field($model, 'ua_tag')->textInput(['maxlength' => true]) ?>
-
-    <hr>
-    <hr>
-
-    <?= $form->field($model, 'ru_annotation')->widget(\vova07\imperavi\Widget::className(), [
-        'settings' => [
-            'lang' => 'ru',
-            'minHeight' => 80,
-            'plugins' => [
-                'clips',
-                'fullscreen',
-            ],
-        ],
-    ]);?>
-
-    <?= $form->field($model, 'ru_tag')->textInput(['maxlength' => true]) ?>
-
-    <hr>
-    <hr>
-
-    <?= $form->field($model, 'us_annotation')->widget(\vova07\imperavi\Widget::className(), [
-        'settings' => [
-            'lang' => 'ru',
-            'minHeight' => 80,
-            'plugins' => [
-                'clips',
-                'fullscreen',
-            ],
-        ],
-    ]);?>
-
-    <?= $form->field($model, 'us_tag')->textInput(['maxlength' => true]) ?>
-
-    <hr>
-    <hr>
-
     <?= $form->field($model, 'top_anotation')->widget(\vova07\imperavi\Widget::className(), [
         'settings' => [
             'lang' => 'ru',
@@ -103,7 +55,12 @@ if ($model->pdf_file != '')
         ],
     ]);?>
 
-    <?= $form->field($model, 'top_tag')->widget(\vova07\imperavi\Widget::className(), [
+    <?= $form->field($model, 'top_tag')->textInput(['maxlength' => true]) ?>
+
+    <hr>
+    <hr>
+
+    <?= $form->field($model, 'second_annotation')->widget(\vova07\imperavi\Widget::className(), [
         'settings' => [
             'lang' => 'ru',
             'minHeight' => 80,
@@ -114,10 +71,12 @@ if ($model->pdf_file != '')
         ],
     ]);?>
 
+    <?= $form->field($model, 'second_tag')->textInput(['maxlength' => true]) ?>
+
     <hr>
     <hr>
 
-    <?= $form->field($model, 'material_html')->widget(\vova07\imperavi\Widget::className(), [
+    <?= $form->field($model, 'last_annotation')->widget(\vova07\imperavi\Widget::className(), [
         'settings' => [
             'lang' => 'ru',
             'minHeight' => 80,
@@ -127,6 +86,10 @@ if ($model->pdf_file != '')
             ],
         ],
     ]);?>
+
+    <?= $form->field($model, 'last_tag')->textInput(['maxlength' => true]) ?>
+
+    <hr>
     <div class="panel-group" id="accordion">
         <div class="panel panel-default">
             <div class="panel-heading">

@@ -8,40 +8,106 @@ use yii\bootstrap\ActiveForm;
 /* @var $form yii\bootstrap\ActiveForm */
 /* @var $model app\models\form\SignupForm */
 
-$this->title = 'Signup';
+$this->title = 'Sign Up';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<main id="content" role="main" class="span12">
-    <!-- Begin Content -->
-
-    <div class="remind">
-
-        <?php $form = ActiveForm::begin(['id' => 'form-signup']); ?>
-        <fieldset>
-            <p>Будь-ласка, заповніть наступні поля для реєстрації:</p>
-            <div class="control-group">
-                <div class="controls">
-                    <?= $form->field($model, 'username') ?>
-
-                    <?= $form->field($model, 'email') ?>
-
-                    <?= $form->field($model, 'password')->passwordInput() ?>
-
-                    <?= $form->field($model, 'verifyCode')->widget(Captcha::className(), [
-                        'template' => '{image}<div class="col-lg-6">{input}</div>',
-                    ]) ?>
-                </div>
-            </div>
-            <div style="color:#999;margin:1em 0">
-                Якщо ви забули свій пароль, ви можете <?= Html::a('змінити його', ['auth/password-reset-request']) ?>.
-            </div>
-        </fieldset>
-        <div class="control-group">
-            <div class="controls">
-                <?= Html::submitButton('Реєстрація', ['class' => 'btn btn-primary', 'name' => 'signup-button']) ?>
+<div class="container mt-lg-5">
+        <?php $form = ActiveForm::begin(['id' => 'form-signup', 'class' => "form-horizontal"]); ?>
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <h2>Реєстрація нового користувача</h2>
+                <hr>
             </div>
         </div>
-        <?php ActiveForm::end(); ?>
-    </div>
-    <!-- End Content -->
-</main>
+        <div class="row">
+            <div class="col-md-3 field-label-responsive">
+                <label for="name">Ім'я</label>
+                <i class="fa fa-user ml-2 mt-2"></i>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <?= $form->field($model, 'username')->textInput()->label(false) ?>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-control-feedback">
+                    <span class="text-danger align-middle">
+                        <!-- Put name validation error messages here -->
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 field-label-responsive">
+                <label for="name">E-Mail адреса</label>
+                <i class="fa fa-at ml-2 mt-2"></i>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <?= $form->field($model, 'email')->textInput()->label(false) ?>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-control-feedback">
+                    <span class="text-danger align-middle">
+                        <!-- Put name validation error messages here -->
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 field-label-responsive">
+                <label for="name">Пароль</label>
+                <i class="fa fa-key ml-2 mt-2"></i>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <?= $form->field($model, 'password')->passwordInput()->label(false) ?>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-control-feedback">
+                    <span class="text-danger align-middle">
+                        <!-- Put name validation error messages here -->
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 field-label-responsive">
+                <label for="name">Підтвердити пароль</label>
+                <i class="fa fa-repeat ml-2 mt-2"></i>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <?= $form->field($model, 'rpPassword')->passwordInput()->label(false) ?>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-control-feedback">
+                    <span class="text-danger align-middle">
+                        <!-- Put name validation error messages here -->
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 field-label-responsive">
+<!--                <label for="name">Код перевірки</label>-->
+<!--                <i class="fa fa-lock ml-2 mt-2"></i>-->
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                <?= $form->field($model, 'reCaptcha')->widget(\himiklab\yii2\recaptcha\ReCaptcha::className())->label(false) ?>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-success"><i class="fa fa-user-plus"></i>Реєстрація</button>
+            </div>
+        </div>
+    <?php ActiveForm::end(); ?>
+</div>
