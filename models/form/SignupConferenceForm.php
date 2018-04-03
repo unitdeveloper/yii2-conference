@@ -26,12 +26,15 @@ class SignupConferenceForm extends Model
         return [
             ['username', 'filter', 'filter' => 'trim'],
             ['username', 'required'],
-            ['username', 'match', 'pattern' => '#^[\w_-]+$#i'],
+//            ['username', 'match', 'pattern' => '#^[\w_-]+$#i'],
             ['username', 'string', 'min' => 2, 'max' => 255],
 
             ['email', 'filter', 'filter' => 'trim'],
             ['email', 'required'],
             ['email', 'email'],
+
+
+
 
             [['article_file'], 'file', 'skipOnEmpty' => false, 'extensions' => ['doc','docx']],
 

@@ -22,16 +22,6 @@ class MassSendMailJob extends BaseObject implements JobInterface
 
             if($model->email) {
 
-//                try {
-//
-//                    \Yii::$app->mailer->compose('@app/mail/mailing', ['mailingData' => $this->mailingData])
-//                        ->setFrom([\Yii::$app->config->get('SUPPORT_EMAIL') => \Yii::$app->name])
-//                        ->setTo($model->email)
-//                        ->setSubject($this->mailingData->subject)
-//                        ->send();
-//                } catch (\Exception $exception) {
-//                    //1
-//                }
                 try {
                     $sendGrid = \Yii::$app->sendGrid;
                     $message = $sendGrid->compose('mailing', ['mailingData' => $this->mailingData]);

@@ -20,6 +20,7 @@ class m180208_125041_create_conference_table extends Migration
         $this->createTable('{{%conference}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
+            'status' => $this->smallInteger()->defaultValue(0),
         ], $tableOptions);
 
         $this->createIndex('idx-conference-name', '{{%conference}}', 'name');

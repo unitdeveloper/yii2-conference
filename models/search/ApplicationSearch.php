@@ -12,13 +12,14 @@ use app\models\Application;
  */
 class ApplicationSearch extends Application
 {
+    public $user_id;
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'material_id', 'status'], 'integer'],
+            [['id', 'material_id', 'status', 'user_id'], 'integer'],
             [['created_at', 'participant_id'], 'safe'],
         ];
     }
@@ -37,10 +38,13 @@ class ApplicationSearch extends Application
      *
      * @param array $params
      *
+     * @param null $user_id
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params, $user_id = null)
     {
+        $this->user_id = $user_id;
+
         $query = Application::find()->joinWith(['participant']);
 
         // add conditions that should always apply here
@@ -76,6 +80,12 @@ class ApplicationSearch extends Application
             'material_id' => $this->material_id,
             'status' => $this->status,
         ]);
+
+        if ($this->user_id) {
+            $query->andWhere([
+                'user_id' => $this->user_id,
+            ]);
+        }
 
         $query->andFilterWhere(['like', 'participant.email', $this->participant_id]);
 

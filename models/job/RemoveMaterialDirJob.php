@@ -18,18 +18,21 @@ class RemoveMaterialDirJob extends BaseObject implements JobInterface
      */
     public function execute($queue)
     {
-        foreach ($this->materials as $material) {
+        try {
+            foreach ($this->materials as $material) {
 
-            if ($material->dir) {
+                if ($material->dir) {
 
-                $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$material->dir;
+                    $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$material->dir;
 
-                if (file_exists($dir)) {
-                    Material::removeDirectory($dir);
+                    if (file_exists($dir)) {
+                        Material::removeDirectory($dir);
+                    }
                 }
             }
+        } catch (\Exception $exception) {
+            return false;
         }
-
         return true;
     }
 }

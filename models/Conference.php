@@ -10,6 +10,7 @@ use Yii;
  *
  * @property int $id
  * @property string $name
+ * @property integer $status
  */
 class Conference extends \yii\db\ActiveRecord
 {
@@ -29,6 +30,7 @@ class Conference extends \yii\db\ActiveRecord
         return [
             [['name'], 'required'],
             [['name'], 'string', 'max' => 255],
+            [['status'], 'integer'],
         ];
     }
 

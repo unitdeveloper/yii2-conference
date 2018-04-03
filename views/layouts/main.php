@@ -23,7 +23,7 @@ AppAsset::register($this);
     <!-- Bootstrap CSS -->
     <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/css?family=Oswald" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed:400,700&amp;subset=cyrillic" rel="stylesheet">
     <title><?= Html::encode($this->title) ?></title>
@@ -40,13 +40,13 @@ AppAsset::register($this);
                 <?=Html::a('Конференція - 2018', ['site/index'], ['class' => 'text-white logo'])?>
             </div>
             <div class="col-sm d-flex justify-content-end align-items-center">
-                <div>
-                    <a href="#" onclick="doGTranslate('uk|uk');return false;" title="Ukrainian" class="btn btn-sm pl-0 pr-1 flag nturl <?php if (!isset($_COOKIE["googtrans"])) echo 'active'; ?> ">ua</a>
-                    <a href="#" onclick="doGTranslate('uk|en');return false;" title="English" class="btn btn-sm pl-0 pr-1 flag nturl <?php if (isset($_COOKIE["googtrans"]) && $_COOKIE["googtrans"] == '/uk/en') echo 'active'; ?>">en</a>
-                    <a href="#" onclick="doGTranslate('uk|pl');return false;" title="Polish" class="btn btn-sm pl-0 pr-1 flag nturl <?php if (isset($_COOKIE["googtrans"]) && $_COOKIE["googtrans"] == '/uk/pl') echo 'active'; ?>">po</a>
-                    <a href="#" onclick="doGTranslate('uk|ru');return false;" title="Russian" class="btn btn-sm pl-0 pr-1 flag nturl <?php if (isset($_COOKIE["googtrans"]) && $_COOKIE["googtrans"] == '/uk/ru') echo 'active'; ?>">ru</a>
-                    |
-                </div>
+<!--                <div>-->
+<!--                    <a href="#" onclick="doGTranslate('uk|uk');return false;" title="Ukrainian" class="btn btn-sm pl-0 pr-1 flag nturl --><?php //if (!isset($_COOKIE["googtrans"])) echo 'active'; ?><!-- ">ua</a>-->
+<!--                    <a href="#" onclick="doGTranslate('uk|en');return false;" title="English" class="btn btn-sm pl-0 pr-1 flag nturl --><?php //if (isset($_COOKIE["googtrans"]) && $_COOKIE["googtrans"] == '/uk/en') echo 'active'; ?><!--">en</a>-->
+<!--                    <a href="#" onclick="doGTranslate('uk|pl');return false;" title="Polish" class="btn btn-sm pl-0 pr-1 flag nturl --><?php //if (isset($_COOKIE["googtrans"]) && $_COOKIE["googtrans"] == '/uk/pl') echo 'active'; ?><!--">po</a>-->
+<!--                    <a href="#" onclick="doGTranslate('uk|ru');return false;" title="Russian" class="btn btn-sm pl-0 pr-1 flag nturl --><?php //if (isset($_COOKIE["googtrans"]) && $_COOKIE["googtrans"] == '/uk/ru') echo 'active'; ?><!--">ru</a>-->
+<!--                    |-->
+<!--                </div>-->
                 <?php if (Yii::$app->user->isGuest) : ?>
                 <?=Html::a('Увійти', ['auth/login'], ['class' => 'btn btn-sm text-white font-weight-bold'])?>
                 <span class="fa fa-sign-in mr-2" aria-hidden="true"></span>
@@ -84,9 +84,16 @@ AppAsset::register($this);
                 }
                 ?>
             </div>
-            <div class="col-md-4 d-flex justify-content-end align-items-center small">
+            <?php if (!\Yii::$app->user->isGuest) : ?>
+            <div class="d-flex justify-content-end align-items-center small">
                 <?=Html::a('Зареєструватися на конференцію', ['auth/signup-conference'], ['class' => 'btn btn-sm text-white'])?>
             </div>
+            <?php $application = \app\models\Application::find()->where(['user_id' => \Yii::$app->user->id])->count(); ?>
+                <?php if ($application) : ?>
+                |
+                    <?=Html::a('My application', ['profile/application'],  ['class' => 'btn btn-sm text-white'])?>
+                <?php endif; ?>
+            <?php endif; ?>
         </div>
     </div>
 </header>
@@ -114,9 +121,9 @@ AppAsset::register($this);
 </footer>
 <?php $this->endBody() ?>
 
-<div id="google_translate_element2"></div>
-<script type="text/javascript">function googleTranslateElementInit2() {new google.translate.TranslateElement({pageLanguage: 'uk', autoDisplay: false}, 'google_translate_element2');}</script>
-<script type="text/javascript" src="http://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2"></script>
+<!--<div id="google_translate_element2"></div>-->
+<!--<script type="text/javascript">function googleTranslateElementInit2() {new google.translate.TranslateElement({pageLanguage: 'uk', autoDisplay: false}, 'google_translate_element2');}</script>-->
+<!--<script type="text/javascript" src="http://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit2"></script>-->
 
 </body>
 

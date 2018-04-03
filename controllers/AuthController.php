@@ -2,12 +2,15 @@
 
 namespace app\controllers;
 
+use app\models\Application;
+use app\models\Conference;
 use app\models\form\EmailConfirmForm;
 use app\models\form\LoginForm;
 use app\models\form\PasswordResetRequestForm;
 use app\models\form\ResetPasswordForm;
 use app\models\form\SignupConferenceForm;
 use app\models\form\SignupForm;
+use app\models\User;
 use yii\base\InvalidParamException;
 use yii\web\BadRequestHttpException;
 use yii\web\Response;
@@ -114,16 +117,46 @@ class AuthController extends SiteController
         ]);
     }
 
+    /**
+     * @return string|Response
+     * @throws \yii\base\Exception
+     */
     public function actionSignupConference()
     {
-        $model = new SignupConferenceForm();
+        if (\Yii::$app->user->isGuest) {
+            return $this->redirect(['/auth/login']);
+        }
+
+//        $user_application = Application::find()->where(['user_id' => \Yii::$app->user->id])->count();
+//
+//        if (\Yii::$app->request->post()) {
+//
+//            $post = \Yii::$app->request->post();
+//
+//            if (isset($post['Application']['category_id'])) {
+//
+//                $model = Application::findOne($post['Application']['id']);
+//
+//                if ($model) {
+//
+//                    $model->addAttachments();
+//                }
+//            }
+//        }
+
+        $model = new Application();
 
         if ($model->load(\Yii::$app->request->post()) && $model->validate() && $model->signupConferense()) {
-            return $this->goHome();
+            return $this->redirect('/profile/application', [
+                'id' => $model->id,
+            ]);
         }
+
+        $activeConference = Conference::find()->where(['status' => 1])->one();
 
         return $this->render('signupConference', [
             'model' => $model,
+            'activeConference' => $activeConference,
         ]);
     }
 
