@@ -46,6 +46,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="col-md-6">
                 <div class="form-group">
                     <?php $model->conference_id = $activeConference->id; ?>
+                    <?= $form->field($model, 'conference_id')->textInput()->label(false)->hiddenInput() ?>
                 </div>
             </div>
 

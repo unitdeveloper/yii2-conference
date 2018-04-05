@@ -65,7 +65,14 @@
                         },
                     ]
                 )->label(false) ?>
-                <?php if ($category = \app\models\Category::find()->select(['name', 'id'])->indexBy('id')->column()) : ?>
+
+                <?php
+                if ($searchModel->conference_id)
+                    $category = \app\models\Category::find()->where(['conference_id' => $searchModel->conference_id])->select(['name', 'id'])->indexBy('id')->column();
+                else
+                    $category = \app\models\Category::find()->select(['name', 'id'])->indexBy('id')->column();
+                ?>
+                <?php if ($category) : ?>
 
                 <hr>
 

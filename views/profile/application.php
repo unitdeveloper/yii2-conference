@@ -21,7 +21,7 @@ $this->title = Yii::$app->name;
                         'itemOptions' => ['class' => 'item'],
                         'itemView' => '_applicationItem',
 //                        'viewParams' => ['form' => $form, 'searchModel' => $searchModel],
-                        'emptyText' => false,
+                        'emptyText' => 'Заявки відсутні',
                         'layout' => "{items}\n{pager}",
                         'pager' => [
                             'firstPageLabel' => 'Перша',

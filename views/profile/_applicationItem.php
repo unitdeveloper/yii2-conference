@@ -6,17 +6,26 @@
 
     <div class="container">
         <div class="meta-date row flex-nowrap justify-content-between align-items-center second-menu">
-            <a href="<?=\yii\helpers\Url::to(['profile/application', 'id' => $model->id])?>" title="Автор">
-            <div class="">
-                <span class="fa fa-clock-o" aria-hidden="true"></span>
-                <time class="updated" datetime="<?=$model->created_at?>" itemprop="datePublished" pubdate="<?=$model->created_at?>">
-                    <small><?=Date('F j, Y',strtotime($model->created_at))?></small>
-                </time>
-            </div>
-            </a>
 
-            <div class="d-flex justify-content-end align-items-center small">
-                <span><?= $model->status ?></span>
+            <div class="">
+                <a href="<?=\yii\helpers\Url::to(['profile/application-view', 'id' => $model->id])?>" title="Автор">
+                    <h5><?=$model->first_name?> <?=$model->last_name?></h5>
+                </a>
+                <div class="small">
+                    <span class="fa fa-clock-o" aria-hidden="true"></span>
+                    <time class="updated" datetime="<?=$model->created_at?>" itemprop="datePublished" pubdate="<?=$model->created_at?>">
+                        <span><?=Date('F j, Y',strtotime($model->created_at))?></span>
+                    </time>
+                </div>
+                <small><b><?=$model->email?></b></small>
+                <br>
+
+            </div>
+
+            <div class=" justify-content-end small">
+                <span>Матеріали : <b><?= $model->material_id ? 'Наявні' : 'Відсутні'?></b></span>
+                <br>
+                <span>Статус : <b><?= $model->statusesModeration[$model->status] ?></b></span>
             </div>
 
         </div>

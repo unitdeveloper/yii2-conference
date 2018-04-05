@@ -20,9 +20,12 @@ class m180104_193959_create_category_table extends Migration
         $this->createTable('{{%category}}', [
             'id' => $this->primaryKey(),
             'name' => $this->string()->notNull(),
+            'conference_id' => $this->integer(),
         ], $tableOptions);
 
         $this->createIndex('idx-category-name', '{{%category}}', 'name');
+
+        $this->addForeignKey('fk-category-conference_id', '{{%category}}', 'conference_id', '{{%conference}}', 'id', 'CASCADE', 'RESTRICT');
     }
 
     /**

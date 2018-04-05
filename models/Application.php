@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\behaviors\TimestampBehavior;
+use yii\db\StaleObjectException;
 use yii\web\UploadedFile;
 
 /**
@@ -39,6 +40,24 @@ class Application extends \yii\db\ActiveRecord
     public $reCaptcha;
     public $article_file;
     public $application_file;
+
+    const STATUS_MODERATION_WAITING_MODERATION = 0;
+    const STATUS_MODERATION_ACCEPTED = 1;
+    const STATUS_MODERATION_NOT_ACCEPTED = 2;
+
+
+    /**
+     * @return array
+     */
+    public static function getStatusesModeration()
+    {
+        return [
+            self::STATUS_MODERATION_WAITING_MODERATION => Yii::t('app', 'Waiting Moderation'),
+            self::STATUS_MODERATION_ACCEPTED => Yii::t('app', 'Accepted'),
+            self::STATUS_MODERATION_NOT_ACCEPTED => Yii::t('app', 'Not accepted'),
+        ];
+    }
+
     /**
      * @inheritdoc
      */
@@ -55,7 +74,7 @@ class Application extends \yii\db\ActiveRecord
         return [
             [
                 [
-//                    'conference_id',
+                    'conference_id',
                     'phone',
                     'first_name',
                     'last_name',
@@ -82,13 +101,28 @@ class Application extends \yii\db\ActiveRecord
             [['first_name', 'last_name', 'surname', 'degree', 'position', 'work_place', 'address_speaker', 'email', 'title_report', 'surnames_co_authors'], 'filter', 'filter' => 'trim'],
 
             ['email', 'email'],
-
-            [['article_file'], 'file', 'skipOnEmpty' => true, 'extensions' => ['doc','docx']],
-
-            [['application_file'], 'file', 'skipOnEmpty' => true, 'extensions' => ['doc','docx']],
+            ['email', 'validateUniqueEmail'],
 
             [['reCaptcha'], \himiklab\yii2\recaptcha\ReCaptchaValidator::className(), 'secret' => \codemix\yii2confload\Config::env('RECAPTCHA_SECRET_KEY', 'secretKey'), 'uncheckedMessage' => 'Please confirm that you are not a bot.']
         ];
+    }
+
+    /**
+     * @return bool
+     */
+    public function validateUniqueEmail()
+    {
+        $conference = Conference::find()->where(['status' => 1])->one();
+
+        if (!$conference)
+            $this->addError('email', 'Активної конференції не існує');
+
+        $application = Application::find()->where(['email' => $this->email])->andWhere(['conference_id' => $conference->id])->count();
+
+        if ($application)
+            $this->addError('email', 'З даного емейла можна відіслати тільки одну заявку на дану конференцію.');
+
+        return true;
     }
 
     /**
@@ -176,20 +210,11 @@ class Application extends \yii\db\ActiveRecord
     /**
      * @return bool
      */
-    public function beforeValidate()
-    {
-        $this->article_file = UploadedFile::getInstance($this, 'article_file');
-        $this->application_file = UploadedFile::getInstance($this, 'application_file');
-
-        return parent::beforeValidate();
-    }
-
-    /**
-     * @return bool
-     * @throws \yii\base\Exception
-     */
     public function signupConferense()
     {
+        if (!$conference = Conference::findOne($this->conference_id))
+            return false;
+
         $participant = Participant::find()->where(['=', 'email', $this->email])->one();
         if (!$participant)
             if (!$participant = $this->createParticipant())
@@ -201,21 +226,6 @@ class Application extends \yii\db\ActiveRecord
 
         \Yii::$app->session->setFlash('success', 'Заявка успішно відправлена');
         return true;
-
-//            if ($material = $this->createMaterial($participant)) {
-//
-//                if (!$this->createAttachments($material))
-//                    return false;
-//
-//                if (!$this->createApplication($participant, $material))
-//                    return false;
-//
-//                \Yii::$app->session->setFlash('success', 'Заявка успішно відправлена');
-//                return true;
-//            }
-//
-//            \Yii::$app->session->setFlash('error', 'Не вдалося відправити заявку');
-//            return false;
 
     }
 
@@ -239,23 +249,6 @@ class Application extends \yii\db\ActiveRecord
     }
 
     /**
-     * @param $participant
-     * @return Material|bool
-     */
-    public function createMaterial($participant)
-    {
-        $material = new Material();
-        $material->participant_id = $participant->id;
-
-        if ($material->save()) {
-            return $material;
-        }
-
-        \Yii::$app->session->setFlash('error', 'Не вдалося відправити заявку');
-        return false;
-    }
-
-    /**
      * @return Participant|bool
      */
     public function createParticipant()
@@ -269,32 +262,5 @@ class Application extends \yii\db\ActiveRecord
 
         \Yii::$app->session->setFlash('error', 'Не вдалося відправити заявку');
         return false;
-    }
-
-    /**
-     * @param $material
-     * @return bool
-     */
-    public function createAttachments($material)
-    {
-        $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$material->dir;
-
-        try {
-            if ($article_file = $this->article_file) {
-
-                $article_file->saveAs($dir . $article_file->name);
-            }
-
-            if ($application_file = $this->application_file) {
-
-                $application_file->saveAs($dir . $application_file->name);
-            }
-
-        } catch (\Exception $exception) {
-            \Yii::$app->session->setFlash('error', 'Не вдалося відправити заявку');
-            return false;
-        }
-
-        return true;
     }
 }

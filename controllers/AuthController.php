@@ -8,7 +8,7 @@ use app\models\form\EmailConfirmForm;
 use app\models\form\LoginForm;
 use app\models\form\PasswordResetRequestForm;
 use app\models\form\ResetPasswordForm;
-use app\models\form\SignupConferenceForm;
+use app\models\form\DownloadApplicationFilesForm;
 use app\models\form\SignupForm;
 use app\models\User;
 use yii\base\InvalidParamException;
@@ -127,27 +127,11 @@ class AuthController extends SiteController
             return $this->redirect(['/auth/login']);
         }
 
-//        $user_application = Application::find()->where(['user_id' => \Yii::$app->user->id])->count();
-//
-//        if (\Yii::$app->request->post()) {
-//
-//            $post = \Yii::$app->request->post();
-//
-//            if (isset($post['Application']['category_id'])) {
-//
-//                $model = Application::findOne($post['Application']['id']);
-//
-//                if ($model) {
-//
-//                    $model->addAttachments();
-//                }
-//            }
-//        }
-
         $model = new Application();
 
         if ($model->load(\Yii::$app->request->post()) && $model->validate() && $model->signupConferense()) {
-            return $this->redirect('/profile/application', [
+
+            return $this->redirect(['/profile/application-view',
                 'id' => $model->id,
             ]);
         }

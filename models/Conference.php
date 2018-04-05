@@ -54,6 +54,14 @@ class Conference extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCategorys()
+    {
+        return $this->hasMany(Category::className(), ['conference_id' => 'id']);
+    }
+
+    /**
      * Deleting work directory related materials
      * @return bool
      */

@@ -4,6 +4,8 @@ namespace app\modules\admin\controllers;
 
 
 
+use app\models\Application;
+use app\models\Conference;
 use app\models\Letter;
 use app\models\Material;
 use app\models\Participant;
@@ -55,7 +57,7 @@ class EmailController
         if (!$inbox = $this->getInbox())
             return false;
 
-        $newEmails = imap_search($inbox,"UNSEEN SUBJECT '$this->searchKey'");
+        $newEmails = imap_search($inbox,"UNSEEN SUBJECT '$this->searchKey'", SE_FREE, 'UTF-8');
 
         imap_close($inbox);
 
@@ -105,13 +107,17 @@ class EmailController
      * @param $dir
      * @param $participantId
      * @param $dataSender
+     * @param $application Application
      * @return bool
      */
-    public function createNewMaterial($dir, $participantId, $dataSender)
+    public function createNewMaterial($dir, $participantId, $dataSender, $application)
     {
         $material = new Material();
         $material->dir = $dir;
         $material->participant_id = $participantId;
+        if ($application) {
+            $material->conference_id = $application->conference_id;
+        }
 
         if ($material->save())
             return $material->id;
@@ -203,14 +209,20 @@ class EmailController
                     if (!$participantId = $this->createNewParticipant($dataSender))
                         return false;
 
-                    if (!$materialId = $this->createNewMaterial($dir, $participantId, $dataSender))
+                    $application = $this->findApplication($dataSender);
+
+                    if (!$materialId = $this->createNewMaterial($dir, $participantId, $dataSender, $application))
                         return false;
 
                     if (!$letter = $this->createNewLetter($participantId, $dataSender, $materialId))
                         return false;
+
+                    /** @var Application $application */
+                    if (is_object($application) && !$application->material_id)
+                        $this->updateApplication($materialId, $application);
                 }
 
-                if (!$this->setFalg($inbox, $emailNumber, "\\Seen \\Flagged"))
+                if (!$this->setFlag($inbox, $emailNumber, "\\Seen \\Flagged"))
                     return false;
 
                 if($count++ >= $this->emailReadingLimit) break;
@@ -225,8 +237,41 @@ class EmailController
         return false;
     }
 
+    /**
+     * @param $dataSender
+     * @return array|bool|null|\yii\db\ActiveRecord
+     */
+    public function findApplication($dataSender)
+    {
+        $conference = Conference::find()->where(['status' => 1])->one();
 
-    public function setFalg($inbox, $emailNumber, $flag)
+        $application = Application::find()->where(['email' => $dataSender['email']])->andWhere(['conference_id' => $conference->id])->one();
+
+        if ($application)
+            return $application;
+        return false;
+    }
+
+    /**
+     * @param $materialId
+     * @param $application
+     */
+    public function updateApplication($materialId, $application)
+    {
+        if ($application) {
+            /** @var Application $application */
+            $application->material_id = $materialId;
+            $application->save(false);
+        }
+    }
+
+    /**
+     * @param $inbox
+     * @param $emailNumber
+     * @param $flag
+     * @return bool
+     */
+    public function setFlag($inbox, $emailNumber, $flag)
     {
         if (imap_setflag_full($inbox, $emailNumber, $flag))
             return true;

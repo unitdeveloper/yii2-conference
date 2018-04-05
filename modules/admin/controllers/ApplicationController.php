@@ -52,8 +52,14 @@ class ApplicationController extends Controller
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
+
+        if ($model->load(Yii::$app->request->post()) && $model->save(false)) {
+            return $this->redirect('index');
+        }
+
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
         ]);
     }
 
@@ -98,9 +104,12 @@ class ApplicationController extends Controller
     /**
      * Deletes an existing Application model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function actionDelete($id)
     {
@@ -123,25 +132,5 @@ class ApplicationController extends Controller
         }
 
         throw new NotFoundHttpException('The requested page does not exist.');
-    }
-
-    /**
-     * @param $id
-     * @return \yii\web\Response
-     * @throws NotFoundHttpException
-     */
-    public function actionChangeStatus($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->status)
-            $model->status = 0;
-        else
-            $model->status = 1;
-
-        $model->save();
-
-        return $this->redirect(['view', 'id' => $id]);
-
     }
 }

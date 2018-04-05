@@ -11,6 +11,7 @@ use yii\helpers\ArrayHelper;
  *
  * @property int $id
  * @property string $name
+ * @property integer $conference_id
  *
  * @property Material[] $materials
  */
@@ -30,8 +31,9 @@ class Category extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name'], 'required'],
+            [['name', 'conference_id'], 'required'],
             [['name'], 'string', 'max' => 255],
+            [['conference_id'], 'exist', 'skipOnError' => false, 'targetClass' => Conference::className(), 'targetAttribute' => ['conference_id' => 'id']],
         ];
     }
 
@@ -43,6 +45,7 @@ class Category extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'name' => 'Name',
+            'conference_id' => 'Conference',
         ];
     }
 
@@ -52,6 +55,14 @@ class Category extends \yii\db\ActiveRecord
     public function getMaterials()
     {
         return $this->hasMany(Material::className(), ['category_id' => 'id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getConference()
+    {
+        return $this->hasOne(Letter::className(), ['id' => 'conference_id']);
     }
 
     /**
