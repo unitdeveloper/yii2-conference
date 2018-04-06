@@ -61,6 +61,11 @@ class Conference extends \yii\db\ActiveRecord
         return $this->hasMany(Category::className(), ['conference_id' => 'id']);
     }
 
+    public static function active()
+    {
+        return Conference::find()->where(['status' => 1])->one();
+    }
+
     /**
      * Deleting work directory related materials
      * @return bool

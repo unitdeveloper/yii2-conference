@@ -19,36 +19,36 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= Html::a('Create Participant', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
-    <?= GridView::widget([
-        'dataProvider' => $dataProvider,
-        'filterModel' => $searchModel,
-        'columns' => [
-//            ['class' => 'yii\grid\SerialColumn'],
+    <?php try {
+        echo GridView::widget([
+            'dataProvider' => $dataProvider,
+            'filterModel' => $searchModel,
+            'columns' => [
 
-//            'id',
-            'name',
-            'email:email',
-            [
-                'attribute' => 'material',
-                'filter'    =>  false,
-                'value' => function ($data) {
-                    $materials = $data->materials;
-                    if (count($materials) == 0) {
-                        return Html::tag('span', 'Матеріали відсутні');
-                    }
-                    $html = '';
-                    foreach ($materials as $material) {
-                        if ($material->material_name)
-                            $html .= Html::a(Html::encode($material->material_name), \yii\helpers\Url::to(['/admin/material/view', 'id' => $material->id])).'<br>';
-                        else
-                            $html .= Html::a(Html::encode($material->id), \yii\helpers\Url::to(['/admin/material/view', 'id' => $material->id])).'<br>';
-                    }
-                    return $html;
-                },
-                'format' => 'raw',
+                'name',
+                'email:email',
+                [
+                    'attribute' => 'material',
+                    'filter' => false,
+                    'value' => function ($data) {
+                        $materials = $data->materials;
+                        if (count($materials) == 0) {
+                            return Html::tag('span', 'Матеріали відсутні');
+                        }
+                        $html = '';
+                        foreach ($materials as $material) {
+                            if ($material->material_name)
+                                $html .= Html::a(Html::encode($material->material_name), \yii\helpers\Url::to(['/admin/material/view', 'id' => $material->id])) . '<br>';
+                            else
+                                $html .= Html::a(Html::encode($material->id), \yii\helpers\Url::to(['/admin/material/view', 'id' => $material->id])) . '<br>';
+                        }
+                        return $html;
+                    },
+                    'format' => 'raw',
+                ],
+
+                ['class' => 'yii\grid\ActionColumn'],
             ],
-
-            ['class' => 'yii\grid\ActionColumn'],
-        ],
-    ]); ?>
+        ]);
+    } catch (Exception $e) {} ?>
 </div>

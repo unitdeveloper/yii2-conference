@@ -19,7 +19,7 @@ class LetterSearch extends Letter
     {
         return [
             [['id', 'status', 'material_id'], 'integer'],
-            [['created_at', 'participant_id'], 'safe'],
+            [['created_at', 'participant_id', 'conference_id', 'user_id'], 'safe'],
         ];
     }
 
@@ -41,7 +41,7 @@ class LetterSearch extends Letter
      */
     public function search($params)
     {
-        $query = Letter::find()->joinWith(['participant']);
+        $query = Letter::find()->joinWith(['participant'])->joinWith(['user']);
 
         // add conditions that should always apply here
 
@@ -57,6 +57,11 @@ class LetterSearch extends Letter
                         'desc' => ['{{%participant}}.name' => SORT_DESC],
                     ],
                     'material_id',
+                    'conference_id',
+                    'user_id' => [
+                        'asc' => ['{{%user}}.username' => SORT_ASC],
+                        'desc' => ['{{%user}}.username' => SORT_DESC],
+                    ],
                 ],
             ],
         ]);
@@ -77,7 +82,9 @@ class LetterSearch extends Letter
             'material_id' => $this->material_id,
         ]);
 
-        $query->andFilterWhere(['like', 'participant.email', $this->participant_id]);
+        $query->andFilterWhere(['like', 'participant.email', $this->participant_id])
+                ->andFilterWhere(['like', 'conference_id', $this->conference_id])
+                ->andFilterWhere(['like', 'user.username', $this->user_id]);
 
         return $dataProvider;
     }

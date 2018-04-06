@@ -36,6 +36,22 @@ $this->params['breadcrumbs'][] = $this->title;
                     'format' => 'raw',
                     'label' => 'Participant email'
                 ],
+                [
+                    'attribute' => 'user_id',
+                    'value' => function ($data) {
+                        $user = $data->user;
+                        if ($user)
+                            return $user->username;
+                        return null;
+                    },
+                    'format' => 'raw',
+                    'label' => 'User name'
+                ],
+                [
+                    'attribute' => 'conference_id',
+                    'filter' => \app\models\Conference::find()->select(['name', 'id'])->indexBy('id')->column(),
+                    'value' => 'conference.name'
+                ],
 //                [
 //                    'attribute' => 'material_id',
 //                    'value' => function ($data) {

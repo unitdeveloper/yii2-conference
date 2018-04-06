@@ -86,6 +86,7 @@ class ProfileController extends Controller
     public function actionApplicationDelete($id)
     {
         $model = $this->findApplicationModel($id);
+
         if ($model->material_id) {
 
             $material = Material::findOne($model->material_id);
@@ -115,9 +116,9 @@ class ProfileController extends Controller
      */
     protected function findApplicationModel($id)
     {
-        if (($model = Application::findOne($id)) !== null) {
-            return $model;
-        }
+        if (($model = Application::findOne($id)) !== null)
+            if ($model->user_id = Yii::$app->user->identity->getId())
+                return $model;
 
         throw new NotFoundHttpException('The requested page does not exist.');
     }

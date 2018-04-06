@@ -2,22 +2,18 @@
 
 namespace app\modules\admin\controllers;
 
-
-
 use app\models\Application;
 use app\models\Conference;
 use app\models\Letter;
 use app\models\Material;
 use app\models\Participant;
-use yii\db\Exception;
-use yii\helpers\Html;
+use app\models\User;
+use yii\helpers\FileHelper;
 
 class EmailController
 {
     private $inboxData;
-
     private $searchKey;
-
     private $emailReadingLimit;
 
     /**
@@ -25,10 +21,8 @@ class EmailController
      */
     public function __construct()
     {
-        $this->inboxData = unserialize(\Yii::$app->config->get('INBOX_DATA'));
-
-        $this->searchKey = \Yii::$app->config->get('HEADER_FOR_EMAIL_SEARCH');
-
+        $this->inboxData         = unserialize(\Yii::$app->config->get('INBOX_DATA'));
+        $this->searchKey         = \Yii::$app->config->get('HEADER_FOR_EMAIL_SEARCH');
         $this->emailReadingLimit = \Yii::$app->config->get('EMAIL_READING_LIMIT');
 
     }
@@ -104,20 +98,28 @@ class EmailController
     }
 
     /**
-     * @param $dir
-     * @param $participantId
-     * @param $dataSender
+     * @param $dir string
+     * @param $participantId integer
+     * @param $dataSender integer
      * @param $application Application
      * @return bool
      */
     public function createNewMaterial($dir, $participantId, $dataSender, $application)
     {
+        /** @var Material $material */
+        $material = Material::find()->where(['dir' => $dir])->one();
+
+        if ($material)
+            return $material->id;
+
+        /** @var Conference $conference */
         $material = new Material();
         $material->dir = $dir;
         $material->participant_id = $participantId;
-        if ($application) {
+        if ($application)
             $material->conference_id = $application->conference_id;
-        }
+        else if ($conference = Conference::active())
+            $material->conference_id = $conference->id;
 
         if ($material->save())
             return $material->id;
@@ -131,9 +133,10 @@ class EmailController
      */
     public function createNewParticipant($dataSender)
     {
+        /** @var Participant $participant */
         $participant = Participant::find()->where(['email' => $dataSender['email']])->one();
 
-        if (count($participant) != 0)
+        if ($participant)
             return $participant->id;
 
         $participant = new Participant();
@@ -147,17 +150,35 @@ class EmailController
     }
 
     /**
-     * @param $participantId
-     * @param $materialId
-     * @param $dataSender
+     * @param $participantId integer
+     * @param $dataSender array
+     * @param $dir string
+     * @param $emailNumber integer
+     * @param $materialId integer
      * @return bool
      */
-    public function createNewLetter($participantId, $dataSender, $materialId = null)
+    public function createNewLetter($participantId, $dataSender,$dir, $emailNumber, $materialId = null)
     {
+        /** @var Conference $conference */
+        /** @var User $user */
+        /** @var Letter $letter */
+        $conference = Conference::active();
+        if (trim($dir, '/') == $emailNumber) {
+
+            $letter = Letter::find()->where(['material_id' => $materialId])->andWhere(['conference_id' => $conference->id])->andWhere(['material_id' => $materialId])->count();
+            if ($letter)
+                return true;
+        }
+        $user = User::find()->where(['email' => $dataSender['email']])->one();
+
         $letter = new Letter();
         $letter->participant_id = $participantId;
+        $letter->email          = $dataSender['email'];
         $letter->material_id    = $materialId;
+        $letter->conference_id  = $conference->id;
         $letter->message        = $dataSender['message'];
+        if ($user)
+            $letter->user_id    = $user->id;
 
         if (!$letter->save()) {
             \Yii::$app->getSession()->setFlash('error', "Не вдалося створити модель листа від ".$dataSender['email']);
@@ -188,39 +209,33 @@ class EmailController
             if (is_array($newEmails) && (count($newEmails) > 0))
                 rsort($newEmails);
 
-            foreach($newEmails as $emailNumber)
-            {
+            foreach($newEmails as $emailNumber) {
+
                 if (!$emailStructure = $this->getEmailStructure($inbox, $emailNumber))
                     return false;
 
                 if (!$dataSender = $this->getInformationAboutSender($inbox, $emailNumber))
                     return false;
 
-                if (!$dir = $this->createFile($emailStructure, $inbox, $emailNumber, $dataSender)) {
+                if (!$participantId = $this->createNewParticipant($dataSender))
+                    return false;
+                $materialId = null;
 
-                    if (!$participantId = $this->createNewParticipant($dataSender))
-                        return false;
-
-                    if (!$letter = $this->createNewLetter($participantId, $dataSender))
-                        return false;
-
-                } else {
-
-                    if (!$participantId = $this->createNewParticipant($dataSender))
-                        return false;
+                if ($dir = $this->createFile($emailStructure, $inbox, $emailNumber, $dataSender)) {
 
                     $application = $this->findApplication($dataSender);
 
                     if (!$materialId = $this->createNewMaterial($dir, $participantId, $dataSender, $application))
                         return false;
 
-                    if (!$letter = $this->createNewLetter($participantId, $dataSender, $materialId))
-                        return false;
-
                     /** @var Application $application */
                     if (is_object($application) && !$application->material_id)
                         $this->updateApplication($materialId, $application);
+
                 }
+
+                if (!$letter = $this->createNewLetter($participantId, $dataSender, $dir, $emailNumber, $materialId))
+                    return false;
 
                 if (!$this->setFlag($inbox, $emailNumber, "\\Seen \\Flagged"))
                     return false;
@@ -243,8 +258,8 @@ class EmailController
      */
     public function findApplication($dataSender)
     {
+        /** @var Conference $conference */
         $conference = Conference::find()->where(['status' => 1])->one();
-
         $application = Application::find()->where(['email' => $dataSender['email']])->andWhere(['conference_id' => $conference->id])->one();
 
         if ($application)
@@ -349,8 +364,15 @@ class EmailController
             return false;
         }
 
-        $dirPath = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$emailNumber.'/';
-        if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$emailNumber)) {
+        /** @var Conference $conference */
+        /** @var Letter $letter */
+        $conference = Conference::active();
+        $letter = Letter::find()->where(['email' => $dataSender['email']])->andWhere(['not', ['material_id' => null]])->andWhere(['conference_id' => $conference->id])->one();
+        if ($letter && $letter->material_id)
+            $dirPath = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$letter->material->dir.'/';
+        else
+            $dirPath = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$emailNumber.'/';
+        if (!is_dir($dirPath)) {
             try {
                 mkdir($dirPath);
             } catch (\Exception $exception) {
@@ -373,7 +395,17 @@ class EmailController
                  */
                 $filename = $emailNumber . "_" . $filename;
 
-                $filePath = $dirPath . $filename;
+                $dateDir = $dirPath . date('Y-m-d H:i:s') . '/';
+                if (!file_exists($dateDir)) {
+                    try {
+                        FileHelper::createDirectory($dateDir);
+                    } catch (\Exception $exception) {
+                        \Yii::$app->getSession()->setFlash('error', "Не вдалося створити файли для листа від ".$dataSender['email']);
+                        return false;
+                    }
+                }
+
+                $filePath = $dateDir . $filename;
 
                 try {
                     $fp = fopen($filePath, "w+");
@@ -388,7 +420,8 @@ class EmailController
             }
 
         }
+        $result = mb_strrchr(trim(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].'/1477/', '/'), '/').'/';
 
-        return '/'.$emailNumber.'/';
+        return $result;
     }
 }

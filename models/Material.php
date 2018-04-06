@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\base\Exception;
+use yii\behaviors\TimestampBehavior;
 use yii\helpers\FileHelper;
 use yii\helpers\Url;
 use yii\web\UploadedFile;
@@ -260,6 +261,21 @@ class Material extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array
+     */
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => 'updated_at',
+                'value' => date('Y-m-d'),
+            ]
+        ];
+    }
+
+    /**
      * Loading a word document into a working directory material
      * @param bool $insert
      * @return bool
@@ -267,14 +283,10 @@ class Material extends \yii\db\ActiveRecord
     public function beforeSave($insert)
     {
 
-        if (!$this->publisher_at && $this->status_publisher != 0) {
-
+        if (!$this->publisher_at && $this->status_publisher != 0)
             $this->publisher_at = date('Y-m-d');
-        }
 
         if (!$this->created_at) {
-
-            $this->created_at = date('Y-m-d');
 
             if (empty($this->dir)) {
 
@@ -294,9 +306,6 @@ class Material extends \yii\db\ActiveRecord
                 }
             }
 
-        } else {
-
-            $this->updated_at = date('Y-m-d');
         }
 
         if ($wordFile = UploadedFile::getInstance($this, 'wordFile')) {
@@ -304,7 +313,6 @@ class Material extends \yii\db\ActiveRecord
             $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir;
 
             $this->removeBasicFile();
-
             $this->word_file = $wordFile->name;
 
             $this->removeFile($dir.$this->word_file);
@@ -314,31 +322,17 @@ class Material extends \yii\db\ActiveRecord
             $wordFile->saveAs($dir.$this->word_file);
         }
 
-        if (file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.trim($this->word_file))) {
+        $files = [
+            'word_file',
+            'pdf_file',
+            'html_file',
+        ];
 
-            $this->word_file = trim($this->word_file);
-        } else {
-
-            $this->word_file = '';
+        foreach ($files as $file) {
+            $this->$file = trim($this->$file);
+            if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.trim($this->$file)))
+                $this->$file = '';
         }
-
-        if (file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.$this->pdf_file)) {
-
-            $this->pdf_file = trim($this->pdf_file);
-        } else {
-
-            $this->pdf_file = '';
-        }
-
-        if (file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.$this->html_file)) {
-
-            $this->html_file = trim($this->html_file);
-        } else {
-
-            $this->html_file = '';
-        }
-
-
 
         return parent::beforeSave($insert);
     }
@@ -354,16 +348,11 @@ class Material extends \yii\db\ActiveRecord
         if ($dir != '') {
 
             $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir;
-
-            if (file_exists($dir)) {
-
+            if (file_exists($dir))
                 self::removeDirectory($dir);
-            }
-        } else {
 
+        } else
             $this->removeBasicFile();
-
-        }
 
         return parent::beforeDelete();
     }

@@ -13,14 +13,15 @@ use app\models\Application;
 class ApplicationSearch extends Application
 {
     public $user_id;
+    public $username;
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'material_id', 'status', 'user_id'], 'integer'],
-            [['created_at', 'participant_id'], 'safe'],
+            [['id', 'material_id', 'status',], 'integer'],
+            [['created_at', 'user_id', 'username', 'participant_id', 'category_id', 'conference_id'], 'safe'],
         ];
     }
 
@@ -45,7 +46,7 @@ class ApplicationSearch extends Application
     {
         $this->user_id = $user_id;
 
-        $query = Application::find()->joinWith(['participant']);
+        $query = Application::find()->joinWith(['participant'])->joinWith(['conference'])->joinWith(['category'])->joinWith(['user']);
 
         // add conditions that should always apply here
 
@@ -61,6 +62,12 @@ class ApplicationSearch extends Application
                         'desc' => ['{{%participant}}.name' => SORT_DESC],
                     ],
                     'material_id',
+                    'category_id',
+                    'conference_id',
+                    'username' => [
+                        'asc' => ['{{%user}}.username' => SORT_ASC],
+                        'desc' => ['{{%user}}.username' => SORT_DESC],
+                    ],
                 ],
             ],
         ]);
@@ -87,7 +94,10 @@ class ApplicationSearch extends Application
             ]);
         }
 
-        $query->andFilterWhere(['like', 'participant.email', $this->participant_id]);
+        $query->andFilterWhere(['like', 'participant.email', $this->participant_id])
+                ->andFilterWhere(['like', 'category_id', $this->category_id])
+                ->andFilterWhere(['like', 'conference_id', $this->conference_id])
+                ->andFilterWhere(['like', 'user.username', $this->username]);
 
         return $dataProvider;
     }

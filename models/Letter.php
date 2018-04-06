@@ -2,7 +2,8 @@
 
 namespace app\models;
 
-use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "{{%letter}}".
@@ -11,13 +12,16 @@ use Yii;
  * @property string $created_at
  * @property int $participant_id
  * @property int $material_id
+ * @property int $conference_id
+ * @property int $user_id
  * @property int $status
  * @property string $message
+ * @property string $email
  *
  * @property Material $material
  * @property Participant $participant
  */
-class Letter extends \yii\db\ActiveRecord
+class Letter extends ActiveRecord
 {
     /**
      * @inheritdoc
@@ -33,10 +37,12 @@ class Letter extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['created_at', 'message'], 'safe'],
+            [['created_at', 'message', 'email'], 'safe'],
             [['participant_id', 'material_id', 'status'], 'integer'],
             [['material_id'], 'exist', 'skipOnError' => true, 'targetClass' => Material::className(), 'targetAttribute' => ['material_id' => 'id']],
             [['participant_id'], 'exist', 'skipOnError' => true, 'targetClass' => Participant::className(), 'targetAttribute' => ['participant_id' => 'id']],
+            [['conference_id'], 'exist', 'skipOnError' => true, 'targetClass' => Conference::className(), 'targetAttribute' => ['conference_id' => 'id']],
+            [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
         ];
     }
 
@@ -51,7 +57,9 @@ class Letter extends \yii\db\ActiveRecord
             'participant_id' => 'Participant ID',
             'material_id' => 'Material ID',
             'status' => 'Status',
-            'message' => 'Message'
+            'message' => 'Message',
+            'conference_id' => 'Conference',
+            'user_id' => 'User',
         ];
     }
 
@@ -66,22 +74,39 @@ class Letter extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
+    public function getConference()
+    {
+        return $this->hasOne(Conference::className(), ['id' => 'conference_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUser()
+    {
+        return $this->hasOne(User::className(), ['id' => 'user_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
     public function getParticipant()
     {
         return $this->hasOne(Participant::className(), ['id' => 'participant_id']);
     }
 
     /**
-     * @param bool $insert
-     * @return bool
+     * @return array
      */
-    public function beforeSave($insert)
+    public function behaviors()
     {
-        if (!$this->created_at) {
-
-            $this->created_at = date('Y-m-d');
-        }
-
-        return parent::beforeSave($insert);
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'createdAtAttribute' => 'created_at',
+                'updatedAtAttribute' => false,
+                'value' => date('Y-m-d'),
+            ]
+        ];
     }
 }

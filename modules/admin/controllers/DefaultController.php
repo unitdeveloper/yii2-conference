@@ -3,14 +3,12 @@
 namespace app\modules\admin\controllers;
 
 use app\models\Application;
+use app\models\Conference;
 use app\models\form\MailingForm;
-use app\models\job\MassSendMailJob;
 use app\models\Letter;
 use app\models\MailTemplate;
 use app\models\Material;
 use app\models\Participant;
-use app\models\User;
-use app\modules\admin\Module;
 use yii\base\DynamicModel;
 use yii\base\Exception;
 use yii\helpers\FileHelper;
@@ -30,21 +28,20 @@ class DefaultController extends Controller
      */
     public function actionIndex()
     {
-
         $email     = new EmailController();
         $newEmails = $email->searchNewEmails();
 
         $countUnpublishedMaterial = Material::find()->where(['=', 'status_publisher', 0])->count();
-        $countParticipant = Participant::find()->count();
-        $countNewApplication = Application::find()->where(['=', 'status', 0])->count();
-        $countNewLetter = Letter::find()->where(['=', 'status', 0])->count();
+        $countParticipant         = Participant::find()->count();
+        $countNewApplication      = Application::find()->where(['=', 'status', 0])->count();
+        $countNewLetter           = Letter::find()->where(['=', 'status', 0])->count();
 
         return $this->render('index',[
-            'countNewEmail' => $newEmails ? count($newEmails) : 0,
+            'countNewEmail'            => $newEmails ? count($newEmails) : 0,
             'countUnpublishedMaterial' => $countUnpublishedMaterial,
-            'countParticipant' => $countParticipant,
-            'countNewApplication' => $countNewApplication,
-            'countNewLetter' => $countNewLetter,
+            'countParticipant'         => $countParticipant,
+            'countNewApplication'      => $countNewApplication,
+            'countNewLetter'           => $countNewLetter,
         ]);
     }
 
@@ -203,6 +200,7 @@ class DefaultController extends Controller
 
     /**
      * Mailing for a participants conference
+     * @param null $id_template
      * @return string|Response
      */
     public function actionMailing($id_template = null)

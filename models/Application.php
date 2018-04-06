@@ -112,7 +112,10 @@ class Application extends \yii\db\ActiveRecord
      */
     public function validateUniqueEmail()
     {
-        $conference = Conference::find()->where(['status' => 1])->one();
+        /** @var Conference $conference */
+        /** @var Participant $participant */
+        /** @var Letter $letter */
+        $conference = Conference::active();
 
         if (!$conference)
             $this->addError('email', 'Активної конференції не існує');
@@ -121,6 +124,15 @@ class Application extends \yii\db\ActiveRecord
 
         if ($application)
             $this->addError('email', 'З даного емейла можна відіслати тільки одну заявку на дану конференцію.');
+
+        $participant = Participant::find()->where(['email' => $this->email])->one();
+
+        if ($participant) {
+            $letter = Letter::find()->where(['participant_id' => $participant->id])->andWhere(['conference_id' => $conference->id])->count();
+
+            if ($letter)
+                $this->addError('email', 'З даного емейла вже надіслано заявку на дану конференцію.');
+        }
 
         return true;
     }

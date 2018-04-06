@@ -26,6 +26,9 @@ $this->title = Yii::$app->name;
             <p>
                 <?php if (!$model->material_id) : ?>
                     <a href="<?=\yii\helpers\Url::to(['profile/application-material', 'id' => $model->id])?>" title="Завантажити матеріали" class="btn btn-light"><small>Завантажити матеріали</b></small></a>
+                <?php else: ?>
+                    <small>Ви можете відправити додаткові матеріали з вашого емейла <b><?=$model->email?></b> на пошту <b><?=\Yii::$app->config->get('ADMIN_EMAIL');?></b></small>
+                    <br>
                 <?php endif; ?>
                 <?php if (!$model->status) : ?>
                     <a href="<?=\yii\helpers\Url::to(['profile/application-delete', 'id' => $model->id])?>" title="Видалити заявку" class="btn btn-light"><small>Видалити заявку</b></small></a>

@@ -36,6 +36,46 @@ $this->params['breadcrumbs'][] = $this->title;
                     'format' => 'raw',
                     'label' => 'Participant email'
                 ],
+                [
+                    'attribute' => 'conference_id',
+                    'filter' => \app\models\Conference::find()->select(['name', 'id'])->indexBy('id')->column(),
+                    'value' => 'conference.name'
+                ],
+                [
+                    'attribute' => 'category_id',
+                    'filter' => \app\models\Category::find()->select(['name', 'id'])->indexBy('id')->column(),
+                    'value' => 'category.name'
+                ],
+                [
+                    'attribute' => 'username',
+                    'value' => function ($data) {
+                        $user = $data->user;
+                        if ($user)
+                            return $user->username;
+                        return null;
+                    },
+                    'format' => 'raw',
+                    'label' => 'User name'
+                ],
+                [
+                    'attribute' => 'material_id',
+                    'filter' => false,
+                    'value' => function ($data) {
+                        /** @var \app\models\Material $material */
+                        $material = $data->material;
+                        if (!$material)
+                            return Html::tag('span', 'Матеріали відсутні');
+
+                        $html = '';
+                        if ($material->material_name)
+                            $html .= Html::a(Html::encode($material->material_name), \yii\helpers\Url::to(['/admin/material/view', 'id' => $material->id])) . '<br>';
+                        else
+                            $html .= Html::a(Html::encode($material->id), \yii\helpers\Url::to(['/admin/material/view', 'id' => $material->id])) . '<br>';
+
+                        return $html;
+                    },
+                    'format' => 'raw',
+                ],
                 //            'material_id',
                 [
                     'attribute' => 'created_at',

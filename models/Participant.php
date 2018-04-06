@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "{{%participant}}".
@@ -11,7 +11,7 @@ use Yii;
  * @property string $name
  * @property string $email
  */
-class Participant extends \yii\db\ActiveRecord
+class Participant extends ActiveRecord
 {
     public $material;
     /**
@@ -55,16 +55,18 @@ class Participant extends \yii\db\ActiveRecord
     /**
      * Deleting work directory related materials
      * @return bool
+     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
      */
     public function beforeDelete()
     {
         $materials = $this->materials;
 
+        /** @var Material $material */
         foreach ($materials as $material) {
 
-            $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$material->dir;
-
-            Material::removeDirectory($dir);
+            $material->delete();
         }
         return parent::beforeDelete();
     }
