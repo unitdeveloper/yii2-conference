@@ -117,7 +117,7 @@
                 'itemOptions' => ['class' => 'item'],
                 'itemView' => '_materialItem',
                 'viewParams' => ['form' => $form, 'searchModel' => $searchModel],
-                'emptyText' => false,
+                'emptyText' => '<div class="my-3 white_body material-item">Матеріалів не знайдено</div>',
                 'layout' => "{items}\n{pager}",
                 'pager' => [
                     'firstPageLabel' => 'Перша',

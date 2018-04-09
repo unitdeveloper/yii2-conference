@@ -14,6 +14,7 @@ use yii\db\ActiveRecord;
  * @property int $material_id
  * @property int $conference_id
  * @property int $user_id
+ * @property int $application_id
  * @property int $status
  * @property string $message
  * @property string $email
@@ -38,11 +39,12 @@ class Letter extends ActiveRecord
     {
         return [
             [['created_at', 'message', 'email'], 'safe'],
-            [['participant_id', 'material_id', 'status'], 'integer'],
+            [['participant_id', 'application_id', 'conference_id', 'user_id', 'material_id', 'status'], 'integer'],
             [['material_id'], 'exist', 'skipOnError' => true, 'targetClass' => Material::className(), 'targetAttribute' => ['material_id' => 'id']],
             [['participant_id'], 'exist', 'skipOnError' => true, 'targetClass' => Participant::className(), 'targetAttribute' => ['participant_id' => 'id']],
             [['conference_id'], 'exist', 'skipOnError' => true, 'targetClass' => Conference::className(), 'targetAttribute' => ['conference_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']],
+            [['application_id'], 'exist', 'skipOnError' => true, 'targetClass' => Application::className(), 'targetAttribute' => ['application_id' => 'id']],
         ];
     }
 
@@ -60,6 +62,7 @@ class Letter extends ActiveRecord
             'message' => 'Message',
             'conference_id' => 'Conference',
             'user_id' => 'User',
+            'application_id' => 'Application',
         ];
     }
 
@@ -93,6 +96,14 @@ class Letter extends ActiveRecord
     public function getParticipant()
     {
         return $this->hasOne(Participant::className(), ['id' => 'participant_id']);
+    }
+
+    /**
+     * @return \yii\db\ActiveQuery
+     */
+    public function getApplication()
+    {
+        return $this->hasOne(Application::className(), ['id' => 'application_id']);
     }
 
     /**

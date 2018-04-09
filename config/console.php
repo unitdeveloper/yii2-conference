@@ -46,6 +46,13 @@ $config = [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
+        'sendGrid' => [
+            'class' => 'bryglen\sendgrid\Mailer',
+            'username' => Config::env('SEND_GRID_USER_NAME', 'key'),
+            'password' => Config::env('SEND_GRID_PASSWORD', 'key'),
+            'viewPath' => '@app/mail',
+        ],
+        'user' => null,
         'log' => [
             'targets' => [
                 [

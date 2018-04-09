@@ -34,11 +34,37 @@ $this->params['breadcrumbs'][] = $this->title;
         </p>
     </div>
 
-    <div class="col-md-12">
+    <div class="">
     <?php try {
         echo DetailView::widget([
             'model' => $model,
             'attributes' => [
+                'created_at',
+                [
+                    'attribute' => 'conference_id',
+                    'value' =>  \yii\helpers\ArrayHelper::getValue($model, 'conference.name'),
+                ],
+                [
+                    'attribute' => 'status',
+                    'value' => function ($data) {
+                        return $data->statusesModeration[$data->status];
+                    },
+                ],
+                'first_name',
+                'last_name',
+                'surname',
+                'degree',
+                'position',
+                'work_place',
+                'address_speaker',
+                'phone',
+                'email',
+                'title_report',
+                'surnames_co_authors',
+                [
+                    'attribute' => 'category_id',
+                    'value' =>  \yii\helpers\ArrayHelper::getValue($model, 'category.name'),
+                ],
                 [
                     'attribute' => 'participant_id',
                     'value' => function ($data) {
@@ -61,12 +87,16 @@ $this->params['breadcrumbs'][] = $this->title;
                     'format' => 'raw',
                     'label' => 'Material name',
                 ],
-                'created_at',
                 [
-                    'attribute' => 'status',
+                    'attribute' => 'username',
                     'value' => function ($data) {
-                        return $data->statusesModeration[$data->status];
+                        $user = $data->user;
+                        if ($user)
+                            return $user->username;
+                        return null;
                     },
+                    'format' => 'raw',
+                    'label' => 'User name'
                 ],
             ],
         ]);

@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use Yii;
 use yii\base\Exception;
 use yii\behaviors\TimestampBehavior;
 use yii\helpers\FileHelper;
@@ -250,12 +249,49 @@ class Material extends \yii\db\ActiveRecord
             return false;
         }
 
-
         $result = '';
-        foreach ($files as $file) {
+        foreach ($files as $key => $file) {
 
             $result .= "<a href=".Url::to(['/admin/material/download', 'resource' => $file]).">".str_replace(\Yii::$app->getBasePath() . \Yii::$app->params['PathToAttachments']. $this->dir,'',$file)."</a>".'<br>';
+//            $files[$key] = str_replace(\Yii::$app->getBasePath() . \Yii::$app->params['PathToAttachments']. $this->dir,'',$file);
         }
+
+//        $tree = [];
+//
+//        $files = [
+//            0 => '2018-04-07 09:29:45/1483_1_Мацегора_Ю_С.doc',
+//
+//            1 => '2018-04-07 09:31:16/1477_4_Сакно_О_Лукічов_О/1477_4_Сакно_О_Лукічов_О.doc',
+//            2 => '2018-04-07 09:31:16/1477_5_Люсік_ВО.doc',
+//            3 => '2018-04-07 09:31:16/1477_5_Lyshuk_V.doc',
+//
+//            4 => '2018-04-07 09:31:16/test1/12',
+//            5 => '2018-04-07 09:31:16/test1/13',
+//
+//            6 => '2018-04-07 09:31:17/',
+//
+//            7 => '1477_5_Lyshuk_V.doc',
+//        ];
+//
+//        echo '<pre>';
+//        print_r($files);
+//        echo '</pre>';
+//
+//        foreach ($files as $key => $file) {
+//            if (strpos(trim($file, '/'), '/')) {
+//                $file = stristr(trim($file, '/'),'/', true);
+//                if (!in_array($file, $tree))
+//                    $tree[] = $file;
+//            }
+//            else
+//                $tree[] = trim($file, '/');
+//        }
+//
+//
+//        echo '<pre>';
+//        print_r($tree);
+//        echo '</pre>';
+//        die();
 
         return $result;
     }
@@ -276,6 +312,30 @@ class Material extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return bool
+     */
+    public function createWorkDirectory()
+    {
+        try {
+            $this->dir = '/'.strtotime('now').'_'.\Yii::$app->getSecurity()->generateRandomString(4).'/';
+        } catch (Exception $exception) {
+            \Yii::$app->getSession()->setFlash('error', "Не удалось создать директорию");
+            return false;
+        }
+
+        $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir;
+        if (!file_exists($dir)) {
+            try {
+                FileHelper::createDirectory($dir);
+            } catch (\Exception $exception) {
+                \Yii::$app->getSession()->setFlash('error', "Не удалось создать директорию");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Loading a word document into a working directory material
      * @param bool $insert
      * @return bool
@@ -283,58 +343,38 @@ class Material extends \yii\db\ActiveRecord
     public function beforeSave($insert)
     {
 
-        if (!$this->publisher_at && $this->status_publisher != 0)
+        if (!$this->publisher_at && $this->status_publisher)
             $this->publisher_at = date('Y-m-d');
 
-        if (!$this->created_at) {
-
-            if (empty($this->dir)) {
-
-                try {
-                    $this->dir = '/'.strtotime('now').'_'.\Yii::$app->getSecurity()->generateRandomString(4).'/';
-                } catch (Exception $exception) {
-                    return false;
-                }
-
-                $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir;
-                if (!file_exists($dir)) {
-                    try {
-                        FileHelper::createDirectory($dir);
-                    } catch (\Exception $exception) {
-                        return false;
-                    }
-                }
-            }
-
-        }
+        if (!$this->created_at && !$this->dir)
+            if (!$this->createWorkDirectory())
+                return false;
 
         if ($wordFile = UploadedFile::getInstance($this, 'wordFile')) {
-
-            $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir;
 
             $this->removeBasicFile();
             $this->word_file = $wordFile->name;
 
-            $this->removeFile($dir.$this->word_file);
-            $this->removeFile($dir.$wordFile->baseName.'.pdf');
-            $this->removeFile($dir.$wordFile->baseName.'.html');
-
+            $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir;
             $wordFile->saveAs($dir.$this->word_file);
         }
 
-        $files = [
-            'word_file',
-            'pdf_file',
-            'html_file',
-        ];
+        $files = ['word_file', 'pdf_file', 'html_file',];
+        $this->checkExistFiles($files);
+
+        return parent::beforeSave($insert);
+    }
+
+    /**
+     * @param $files
+     */
+    public function checkExistFiles($files) {
 
         foreach ($files as $file) {
             $this->$file = trim($this->$file);
             if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.trim($this->$file)))
                 $this->$file = '';
         }
-
-        return parent::beforeSave($insert);
     }
 
     /**
@@ -343,16 +383,13 @@ class Material extends \yii\db\ActiveRecord
      */
     public function beforeDelete()
     {
-        $dir = mb_strrchr($this->dir, '/', true);
-
-        if ($dir != '') {
+        if ($this->dir) {
 
             $dir = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir;
-            if (file_exists($dir))
+            if (is_dir($dir))
                 self::removeDirectory($dir);
 
-        } else
-            $this->removeBasicFile();
+        }
 
         return parent::beforeDelete();
     }
@@ -363,31 +400,23 @@ class Material extends \yii\db\ActiveRecord
      */
     public function removeBasicFile()
     {
+        $path = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir;
 
-        if (!empty($this->word_file)) {
+        if ($this->word_file) {
 
-            $word = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.$this->word_file;
-
-            if (file_exists($word)) {
-                $this->removeFile($word);
-            }
+            $word = $path.$this->word_file;
+            $this->removeFile($word);
         }
-        if (!empty($this->pdf_file)) {
+        if ($this->pdf_file) {
 
-            $pdf = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.$this->pdf_file;
-
-            if (file_exists($pdf)) {
-                $this->removeFile($pdf);
-            }
+            $pdf = $path.$this->pdf_file;
+            $this->removeFile($pdf);
         }
 
-        if (!empty($this->html_file)) {
+        if ($this->html_file) {
 
-            $html = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$this->dir.$this->html_file;
-
-            if (file_exists($html)) {
-                $this->removeFile($html);
-            }
+            $html = $path.$this->html_file;
+            $this->removeFile($html);
         }
 
         return true;
@@ -410,9 +439,9 @@ class Material extends \yii\db\ActiveRecord
      */
     public static function removeDirectory($dir) {
 
-        if ($objs = glob($dir."/*")) {
+        if ($objects = glob($dir."/*")) {
 
-            foreach($objs as $obj) {
+            foreach($objects as $obj) {
 
                 is_dir($obj) ? self::removeDirectory($obj) : unlink($obj);
             }

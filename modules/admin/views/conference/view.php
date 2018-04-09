@@ -23,6 +23,9 @@ $this->params['breadcrumbs'][] = $this->title;
                 'method' => 'post',
             ],
         ]) ?>
+        <?php if (!$model->status) : ?>
+            <?= Html::a('Make active', ['activate', 'id' => $model->id], ['class' => 'btn btn-dark']) ?>
+        <?php endif; ?>
     </p>
 
     <?= DetailView::widget([

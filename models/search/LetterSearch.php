@@ -19,7 +19,7 @@ class LetterSearch extends Letter
     {
         return [
             [['id', 'status', 'material_id'], 'integer'],
-            [['created_at', 'participant_id', 'conference_id', 'user_id'], 'safe'],
+            [['created_at', 'participant_id', 'conference_id', 'user_id', 'application_id'], 'safe'],
         ];
     }
 
@@ -84,6 +84,7 @@ class LetterSearch extends Letter
 
         $query->andFilterWhere(['like', 'participant.email', $this->participant_id])
                 ->andFilterWhere(['like', 'conference_id', $this->conference_id])
+                ->andFilterWhere(['like', 'application_id', $this->application_id])
                 ->andFilterWhere(['like', 'user.username', $this->user_id]);
 
         return $dataProvider;

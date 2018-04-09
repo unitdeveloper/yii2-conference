@@ -87,6 +87,9 @@ class ProfileController extends Controller
     {
         $model = $this->findApplicationModel($id);
 
+        if ($model->status)
+            throw new NotFoundHttpException('The requested page does not exist.');
+
         if ($model->material_id) {
 
             $material = Material::findOne($model->material_id);

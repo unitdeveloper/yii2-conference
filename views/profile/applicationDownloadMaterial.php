@@ -8,7 +8,7 @@
             Завантажити матеріали (admin)
         </h4>
         <?php if (!$model->material_id) : ?>
-        <span>Ви можете відправити всі матеріали з вашого емейла <b><?=$model->email?></b> на пошту <b><?=\Yii::$app->config->get('ADMIN_EMAIL');?></b></span>
+        <span>Ви можете відправити всі матеріали з вашого емейла <b><?=$model->email?></b> на пошту <b><?=\Yii::$app->config->get('ADMIN_EMAIL');?></b> з позначкою <b><?=\Yii::$app->config->get('HEADER_FOR_EMAIL_SEARCH')?></b></span>
         <p>або завантажте їх нижче</p>
         <div class="participant-table mt-4">
             <?php $form = \yii\widgets\ActiveForm::begin([

@@ -99,6 +99,28 @@ class ConferenceController extends Controller
      * @param $id
      * @return \yii\web\Response
      * @throws NotFoundHttpException
+     */
+    public function actionActivate($id)
+    {
+        $model = $this->findModel($id);
+
+        /** @var Conference $conference */
+        $conference = Conference::active();
+        if ($conference) {
+            $conference->status = 0;
+            $conference->save();
+        }
+
+        $model->status = 1;
+        $model->save();
+
+        return $this->redirect(['view', 'id' => $model->id]);
+    }
+
+    /**
+     * @param $id
+     * @return \yii\web\Response
+     * @throws NotFoundHttpException
      * @throws \Exception
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException

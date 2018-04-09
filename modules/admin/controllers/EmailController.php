@@ -15,6 +15,7 @@ class EmailController
     private $inboxData;
     private $searchKey;
     private $emailReadingLimit;
+    public  $sessionMessage;
 
     /**
      * EmailController constructor.
@@ -36,7 +37,9 @@ class EmailController
         try {
             $inbox = imap_open($this->inboxData['hostname'], $this->inboxData['username'], $this->inboxData['password']) or die('Cannot connect to Gmail: ' . imap_last_error());
         } catch (\Exception $exception) {
-            \Yii::$app->getSession()->setFlash('error', "Не вдалося встановити з'єднання з сервером вхідної пошти (IMAP)");
+            if ($this->sessionMessage) {
+                \Yii::$app->getSession()->setFlash('error', "Не вдалося встановити з'єднання з сервером вхідної пошти (IMAP)");
+            }
             return false;
         }
 
@@ -66,14 +69,16 @@ class EmailController
     public function getInformationAboutSender($inbox, $emailNumber)
     {
         try {
-            $message = imap_fetchbody($inbox, $emailNumber, 1.2);
+            $message = base64_decode(imap_fetchbody($inbox, $emailNumber, 1.2));
             if (trim($message) == '')
-                $message = imap_fetchbody($inbox, $emailNumber, 1);
+                $message = base64_decode(imap_fetchbody($inbox, $emailNumber, 1));
             $header = imap_headerinfo($inbox, $emailNumber);
             $senderEmail = $header->from[0]->mailbox . "@" . $header->from[0]->host;
             $senderName = $header->from[0]->personal;
         } catch (\Exception $exception) {
-            \Yii::$app->getSession()->setFlash('error', "Не вдалося отримати інформацію про відправника листа #$emailNumber");
+            if ($this->sessionMessage) {
+                \Yii::$app->getSession()->setFlash('error', "Не вдалося отримати інформацію про відправника листа #$emailNumber");
+            }
             return false;
         }
 
@@ -90,7 +95,9 @@ class EmailController
         try {
             $structure = imap_fetchstructure($inbox, $emailNumber);
         } catch (\Exception $exception) {
-            \Yii::$app->getSession()->setFlash('error', "Не вдалося отримати структуру листа #$emailNumber");
+            if ($this->sessionMessage) {
+                \Yii::$app->getSession()->setFlash('error', "Не вдалося отримати структуру листа #$emailNumber");
+            }
             return false;
         }
 
@@ -107,7 +114,9 @@ class EmailController
     public function createNewMaterial($dir, $participantId, $dataSender, $application)
     {
         /** @var Material $material */
-        $material = Material::find()->where(['dir' => $dir])->one();
+        /** @var Conference $conference */
+        $conference = Conference::active();
+        $material = Material::find()->where(['dir' => $dir])->andWhere(['conference_id' => $conference->id])->one();
 
         if ($material)
             return $material->id;
@@ -123,7 +132,9 @@ class EmailController
 
         if ($material->save())
             return $material->id;
-        \Yii::$app->getSession()->setFlash('error', "Не вдалося створити матеріл листа від ".$dataSender['email']);
+        if ($this->sessionMessage) {
+            \Yii::$app->getSession()->setFlash('error', "Не вдалося створити матеріл листа від " . $dataSender['email']);
+        }
         return false;
     }
 
@@ -145,7 +156,9 @@ class EmailController
 
         if ($participant->save())
             return $participant->id;
-        \Yii::$app->getSession()->setFlash('error', "Не вдалося створити модель учасника листа від ".$dataSender['email']);
+        if ($this->sessionMessage) {
+            \Yii::$app->getSession()->setFlash('error', "Не вдалося створити модель учасника листа від " . $dataSender['email']);
+        }
         return false;
     }
 
@@ -162,6 +175,7 @@ class EmailController
         /** @var Conference $conference */
         /** @var User $user */
         /** @var Letter $letter */
+        /** @var Application $application */
         $conference = Conference::active();
         if (trim($dir, '/') == $emailNumber) {
 
@@ -170,6 +184,7 @@ class EmailController
                 return true;
         }
         $user = User::find()->where(['email' => $dataSender['email']])->one();
+        $application = Application::find()->where(['email' => $dataSender['email']])->andWhere(['conference_id' => $conference->id])->one();
 
         $letter = new Letter();
         $letter->participant_id = $participantId;
@@ -180,8 +195,13 @@ class EmailController
         if ($user)
             $letter->user_id    = $user->id;
 
+        if ($application)
+            $letter->application_id = $application->id;
+
         if (!$letter->save()) {
-            \Yii::$app->getSession()->setFlash('error', "Не вдалося створити модель листа від ".$dataSender['email']);
+            if ($this->sessionMessage) {
+                \Yii::$app->getSession()->setFlash('error', "Не вдалося створити модель листа від " . $dataSender['email']);
+            }
             return false;
         }
         return true;
@@ -189,13 +209,18 @@ class EmailController
 
     /**
      * @param $newEmails
+     * @param bool $sessionMessage
      * @return bool
      */
-    public function readingEmail($newEmails)
+    public function readingEmail($newEmails, $sessionMessage = true)
     {
+        $this->sessionMessage = $sessionMessage;
+
         if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'])) {
 
-            \Yii::$app->getSession()->setFlash('error', "Директорії /attachments не існує");
+            if ($this->sessionMessage) {
+                \Yii::$app->getSession()->setFlash('error', "Директорії /attachments не існує");
+            }
             return false;
         }
 
@@ -248,7 +273,9 @@ class EmailController
 
             return true;
         }
-        \Yii::$app->getSession()->setFlash('error', 'Не знайдено нових листів');
+        if ($this->sessionMessage) {
+            \Yii::$app->getSession()->setFlash('error', 'Не знайдено нових листів');
+        }
         return false;
     }
 
@@ -291,7 +318,9 @@ class EmailController
         if (imap_setflag_full($inbox, $emailNumber, $flag))
             return true;
 
-        \Yii::$app->getSession()->setFlash('error', "Не вдалося выдмітити лист $emailNumber як прочитаний");
+        if ($this->sessionMessage) {
+            \Yii::$app->getSession()->setFlash('error', "Не вдалося відмітити лист $emailNumber як прочитаний");
+        }
         return false;
     }
 
@@ -360,23 +389,42 @@ class EmailController
         }
         if (empty($attachments[1]['is_attachment'])) {
 
-            \Yii::$app->getSession()->setFlash('info', "Не зайнайдено прикріплених файлів в листі від ".$dataSender['email']);
+            if ($this->sessionMessage) {
+                \Yii::$app->getSession()->setFlash('info', "Не зайнайдено прикріплених файлів в листі від " . $dataSender['email']);
+            }
             return false;
         }
 
         /** @var Conference $conference */
         /** @var Letter $letter */
+        /** @var Application $application */
         $conference = Conference::active();
         $letter = Letter::find()->where(['email' => $dataSender['email']])->andWhere(['not', ['material_id' => null]])->andWhere(['conference_id' => $conference->id])->one();
-        if ($letter && $letter->material_id)
-            $dirPath = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$letter->material->dir.'/';
+        $application = Application::find()->where(['email' => $dataSender['email']])->andWhere(['not', ['material_id' => null]])->andWhere(['conference_id' => $conference->id])->one();
+        if ($letter && $letter->material_id) {
+
+            if (is_dir(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$letter->material->dir.'/'))
+                $dirPath = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$letter->material->dir.'/';
+            else
+                $dirPath = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$emailNumber.'/';
+        }
+        else if ($application && $application->material_id){
+
+            if (is_dir(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$application->material->dir.'/'))
+                $dirPath = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$application->material->dir.'/';
+            else
+                $dirPath = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$emailNumber.'/';
+        }
         else
             $dirPath = \Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$emailNumber.'/';
+
         if (!is_dir($dirPath)) {
             try {
                 mkdir($dirPath);
             } catch (\Exception $exception) {
-                \Yii::$app->getSession()->setFlash('error', "Не вдалося створити директорію $dirPath для листа від ".$dataSender['email']);
+                if ($this->sessionMessage) {
+                    \Yii::$app->getSession()->setFlash('error', "Не вдалося створити директорію $dirPath для листа від " . $dataSender['email']);
+                }
                 return false;
             }
         }
@@ -400,7 +448,9 @@ class EmailController
                     try {
                         FileHelper::createDirectory($dateDir);
                     } catch (\Exception $exception) {
-                        \Yii::$app->getSession()->setFlash('error', "Не вдалося створити файли для листа від ".$dataSender['email']);
+                        if ($this->sessionMessage) {
+                            \Yii::$app->getSession()->setFlash('error', "Не вдалося створити файли для листа від " . $dataSender['email']);
+                        }
                         return false;
                     }
                 }
@@ -413,14 +463,16 @@ class EmailController
                     fwrite($fp, $attachment['attachment']);
                     fclose($fp);
                 } catch (\Exception $exception) {
-                    \Yii::$app->getSession()->setFlash('error', "Не вдалося створити файли для листа від ".$dataSender['email']);
+                    if ($this->sessionMessage) {
+                        \Yii::$app->getSession()->setFlash('error', "Не вдалося створити файли для листа від " . $dataSender['email']);
+                    }
                     return false;
                 }
 
             }
 
         }
-        $result = mb_strrchr(trim(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].'/1477/', '/'), '/').'/';
+        $result = mb_strrchr(trim($dirPath, '/'), '/').'/';
 
         return $result;
     }

@@ -25,6 +25,7 @@ class m180319_115553_create_letter_table extends Migration
             'material_id'      => $this->integer(),
             'conference_id'    => $this->integer(),
             'user_id'          => $this->integer(),
+            'application_id'   => $this->integer(),
             'email'            => $this->string(),
             'status'           => $this->smallInteger()->defaultValue(0),
             'message'          => $this->text(),
@@ -34,6 +35,7 @@ class m180319_115553_create_letter_table extends Migration
         $this->addForeignKey('fk-value-letter-user', '{{%letter}}', 'user_id', '{{%user}}', 'id', 'CASCADE', 'RESTRICT');
         $this->addForeignKey('fk-value-letter-participant', '{{%letter}}', 'participant_id', '{{%participant}}', 'id', 'CASCADE', 'RESTRICT');
         $this->addForeignKey('fk-value-letter-material', '{{%letter}}', 'material_id', '{{%material}}', 'id', 'CASCADE', 'RESTRICT');
+        $this->addForeignKey('fk-value-letter-application', '{{%letter}}', 'application_id', '{{%application}}', 'id', 'CASCADE', 'RESTRICT');
     }
 
     /**

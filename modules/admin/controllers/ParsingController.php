@@ -22,6 +22,15 @@ class ParsingController extends Controller
     }
 
     /**
+     * @param $model Material
+     * @return string
+     */
+    public static function getPrefix($model)
+    {
+        return substr($model->word_file, 0, mb_strrpos($model->word_file, '/')) . '/';
+    }
+
+    /**
      * @param $model
      * @return array|bool
      */
@@ -62,7 +71,7 @@ class ParsingController extends Controller
         $university    = self::getUniversity($topInfoString);
         $tagData       = self::getAnnotationData($htmlData, $pdfData, $parsingMaterialName);
 
-        $parsingData   = self::getParsingData($email, $udk, $nameAuthors, $university, $materialName, $tagData, $model);
+        $parsingData   = self::getParsingData($email, $udk, $nameAuthors, $university, $materialName, $tagData);
 
         return $parsingData;
     }
@@ -138,9 +147,10 @@ class ParsingController extends Controller
 //        if (!file_exists(\Yii::$app->getBasePath().\Yii::$app->params['PathToAttachments'].$model->dir.$infoForFile['basename'].'.pdf'))
 //            \Yii::$app->converter->convert($pathToWordFile, $infoForFile['basename'], 'pdf');
 
+        $prefix = self::getPrefix($model);
         try {
-            $model->pdf_file   = $infoForFile['basename'].".pdf";
-            $model->html_file  = $infoForFile['basename'].".html";
+            $model->pdf_file   = $prefix.$infoForFile['basename'].".pdf";
+            $model->html_file  = $prefix.$infoForFile['basename'].".html";
             $model->updated_at = date('Y-m-d');
             $model->save();
         } catch (\Exception $exception) {
@@ -842,7 +852,7 @@ class ParsingController extends Controller
      * @param $model Material
      * @return array
      */
-    private static function getParsingData($email, $udk, $nameAuthors, $university, $materialName, $tagData, $model)
+    private static function getParsingData($email, $udk, $nameAuthors, $university, $materialName, $tagData)
     {
         $uaAnnotation = '';
         $usAnnotation = '';
